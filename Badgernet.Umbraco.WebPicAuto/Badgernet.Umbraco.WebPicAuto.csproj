@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ContentTargetFolders>.</ContentTargetFolders>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
+    <Product>Badgernet.Umbraco.WebPicAuto</Product>
+    <Title>Badgernet.Umbraco.WebPicAuto</Title>
+    <Description>...</Description>
+    <PackageTags>umbraco plugin package</PackageTags>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms" Version="13.0.3" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="13.0.3" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
+    <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+</Project>

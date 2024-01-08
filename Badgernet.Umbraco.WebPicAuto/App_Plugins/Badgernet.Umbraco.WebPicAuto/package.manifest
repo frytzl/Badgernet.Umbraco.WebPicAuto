@@ -1,0 +1,6 @@
+{
+    "id": "Badgernet.Umbraco.WebPicAuto",
+    "name": "WebPicAuto",
+    "version": "1.0.0",
+    "allowPackageTelemetry": true
+}

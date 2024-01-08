@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <BadgernetUmbracoWebPicAutoContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\Badgernet.Umbraco.WebPicAuto\**\*.*</BadgernetUmbracoWebPicAutoContentFilesPath>
+  </PropertyGroup>
+
+  <Target Name="CopyBadgernetUmbracoWebPicAutoAssets" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <BadgernetUmbracoWebPicAutoContentFiles Include="$(BadgernetUmbracoWebPicAutoContentFilesPath)" />
+    </ItemGroup>
+    <Message Text="Copying Badgernet.Umbraco.WebPicAuto files: $(BadgernetUmbracoWebPicAutoContentFilesPath) - #@(BadgernetUmbracoWebPicAutoContentFiles->Count()) files" Importance="high" />
+    <Copy SourceFiles="@(BadgernetUmbracoWebPicAutoContentFiles)" DestinationFiles="@(BadgernetUmbracoWebPicAutoContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\Badgernet.Umbraco.WebPicAuto\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="ClearBadgernetUmbracoWebPicAutoAssets" BeforeTargets="Clean">
+    <ItemGroup>
+      <BadgernetUmbracoWebPicAutoDir Include="$(MSBuildProjectDirectory)\App_Plugins\Badgernet.Umbraco.WebPicAuto\" />
+    </ItemGroup>
+    <Message Text="Clear old Badgernet.Umbraco.WebPicAuto data" Importance="high" />
+    <RemoveDir Directories="@(BadgernetUmbracoWebPicAutoDir)" />
+  </Target>
+</Project>
