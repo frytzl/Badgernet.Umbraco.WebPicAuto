@@ -16,7 +16,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
-            builder.AddNotificationAsyncHandler<MediaSavingNotification, WebPicAutoHandler>();
+            builder.AddNotificationHandler<MediaSavingNotification, WebPicAutoHandler>();
             builder.Services.Configure<WebPicAutoSettings>(builder.Config.GetSection("WebPicAuto"));
         }
     }

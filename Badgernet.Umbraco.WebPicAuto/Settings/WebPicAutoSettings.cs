@@ -10,16 +10,10 @@ namespace Badgernet.Umbraco.WebPicAuto.Settings
     {
         public bool WpaEnableResizing { get; set; } = false;
         public bool WpaEnableConverting { get; set; } = false;
-        public WpaConvertMode WpaConvertMode { get; set; } = WpaConvertMode.Lossy;
+        public string WpaConvertMode { get; set; } = "lossy";
         public int WpaConvertQuality { get; set; } = 80;
         public int WpaTargetWidth { get; set; } = 1920;
         public int WpaTargetHeight { get; set; } = 1080;
         public bool WpaKeepOriginals { get; set; } = false;
-    }
-
-    public enum WpaConvertMode
-    {
-        Lossy,
-        Lossles
     }
 }

@@ -1,5 +1,4 @@
-﻿using Badgernet.Umbraco.WebPicAuto.Helpers;
-using Badgernet.Umbraco.WebPicAuto.Settings;
+﻿using Badgernet.Umbraco.WebPicAuto.Settings;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Events;
@@ -7,8 +6,6 @@ using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Infrastructure.Scoping;
-using Umbraco.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Image = SixLabors.ImageSharp.Image;
@@ -16,6 +13,7 @@ using Size = SixLabors.ImageSharp.Size;
 using File = System.IO.File;
 using Umbraco.Cms.Core.Scoping;
 using System.Text.Json.Nodes;
+using SixLabors.ImageSharp.Formats.Webp;
 
 
 
@@ -25,10 +23,10 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
     public class WebPicAutoHandler(IWebHostEnvironment hostEnvironment, 
                                    IOptions<WebPicAutoSettings> options,
                                    IMediaService mediaService,
-                                   IScopeProvider scopeProvider,
-                                   MediaUrlGeneratorCollection mediaUrlGenerator) : INotificationAsyncHandler<MediaSavingNotification>
+                                   ICoreScopeProvider scopeProvider,
+                                   MediaUrlGeneratorCollection mediaUrlGenerator) : INotificationHandler<MediaSavingNotification>
     {
-        public Task HandleAsync(MediaSavingNotification notification, CancellationToken cancellationToken)
+        public void Handle(MediaSavingNotification notification)
         {
             bool resizingEnabled = options.Value.WpaEnableResizing;
             bool convertingEnabled = options.Value.WpaEnableConverting;
@@ -36,7 +34,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             int targetWidth = options.Value.WpaTargetWidth;
             int targetHeight = options.Value.WpaTargetHeight;
             bool keepOriginals = options.Value.WpaKeepOriginals;
-            WpaConvertMode convertMode = options.Value.WpaConvertMode;
+            string convertMode = options.Value.WpaConvertMode;
 
             //Prevent Options being out of bounds 
             if (targetHeight < 1) targetHeight = 1;
@@ -45,62 +43,129 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             if (convertQuality > 100) convertQuality = 100;
 
 
-            foreach(var media in notification.SavedEntities)
+            foreach(var mediaEntity in notification.SavedEntities)
             {
-                string originalPath = GetMediaPath(media);
-                string targetPath = CreateNewPath(originalPath);
-
-                if (media == null) continue;
-                if (string.IsNullOrEmpty(media.ContentType.Alias) || !media.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue; //Skip if not an image 
-                if (string.IsNullOrEmpty(originalPath) || string.IsNullOrEmpty(targetPath)) continue; //Skip if paths not good
-                if (media.Id > 0) continue; //Skip any not-new images
-
+                string generatedFileNameSuffix = string.Empty;
+                string originalFilePath = GetMediaPath(mediaEntity);
+                string processedFilePath = CreateNewPath(originalFilePath, out generatedFileNameSuffix);
                 Size originalSize = new();
+
+                if (mediaEntity == null) continue;
+                if (string.IsNullOrEmpty(mediaEntity.ContentType.Alias) || !mediaEntity.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue; //Skip if not an image 
+                if (string.IsNullOrEmpty(originalFilePath) || string.IsNullOrEmpty(processedFilePath)) continue; //Skip if paths not good
+                if (mediaEntity.Id > 0) continue; //Skip any not-new images
+
                 try
                 {
-                    originalSize.Width = int.Parse(media.GetValue<string>("umbracoWidth"));
-                    originalSize.Height = int.Parse(media.GetValue<string>("umbracoHeight"));
+                    var widthValue = mediaEntity.GetValue<string>("umbracoWidth");
+                    var heightValue = mediaEntity.GetValue<string>("umbracoHeight");
+
+                    if(widthValue != null && heightValue != null)
+                    {
+                        originalSize.Width = int.Parse(widthValue);
+                        originalSize.Height = int.Parse(heightValue);
+                    }
                 }
                 catch
                 {
-                    continue; //Skip if dimension cannot be parsed 
+                    continue; //Skip if dimensions cannot be parsed 
                 }
 
                 using var scope = scopeProvider.CreateCoreScope(autoComplete: true);
                 using var _ = scope.Notifications.Suppress();
 
+
+
+                //Image resizing part
+                var wasResized = false;
                 var needsResizing = originalSize.Width > targetWidth || originalSize.Height > targetHeight;
                 if(needsResizing && resizingEnabled)
                 {
-                    var targetSize = new Size(targetWidth, targetHeight);
-                    if(ResizeImage(originalPath, targetPath, targetSize ))
+                    if(ResizeImage(originalFilePath, processedFilePath, new Size(targetWidth, targetHeight)))
                     {
-                        if(!keepOriginals)
+                        var imagePathJson = mediaEntity.GetValue<string>("umbracoFile");
+                        if (imagePathJson != null)
                         {
-                            if(TryDeleteFile(originalPath))
+                            for (int i = imagePathJson.Length - 1; i >= 0; i--)
                             {
-                                var jsonProperty = media.GetValue<string>("umbracoFile");
-                                if(jsonProperty != null)
+                                if (imagePathJson[i] == '.')
                                 {
-                                    var jsonNode = JsonNode.Parse(jsonProperty);
-                                    string pathValue = jsonNode["src"].GetValue<string>();
-                                    jsonNode["src"] = Pa;
+                                    imagePathJson = imagePathJson.Insert(i, generatedFileNameSuffix);
+                                    break;
                                 }
-
-                                media.SetValue("umbracoWidth", targetWidth);
-                                media.SetValue("umbracoHeight", targetHeight);
-
-                                
-                               
                             }
+                            mediaEntity.SetValue("umbracoFile", imagePathJson);
                         }
+
+                        mediaEntity.SetValue("umbracoWidth", targetWidth);
+                        mediaEntity.SetValue("umbracoHeight", targetHeight);
+
+                        wasResized = true;
                     }
                 }
 
-                if(convertingEnabled)
+                //Image converting part
+                if(convertingEnabled && !originalFilePath.ToLower().EndsWith(".webp"))
                 {
+                    var sourceFilePath = string.Empty;
+                    var tempFilePath = string.Empty;
 
+                    if(wasResized)
+                    {
+                        sourceFilePath = processedFilePath;
+                    }
+                    else
+                    {
+                        sourceFilePath = originalFilePath;
+                    }
+
+
+                    tempFilePath = processedFilePath;
+                    processedFilePath = Path.ChangeExtension(processedFilePath, ".webp");
+
+
+                    if(ConvertImage(sourceFilePath, processedFilePath, convertMode, convertQuality))
+                    {
+
+                        TryDeleteFile(tempFilePath);
+
+                        var jsonString = mediaEntity.GetValue("umbracoFile");
+
+                        if (jsonString != null)
+                        {
+                            var propNode = JsonNode.Parse((string)jsonString);
+                            string? path = propNode!["src"]!.GetValue<string>();
+                            
+                            if(!wasResized)
+                            {
+                                var dirPath = Path.GetDirectoryName(path);
+                                var fileName = Path.GetFileNameWithoutExtension(path);
+                                fileName += generatedFileNameSuffix + ".webp";
+                                fileName = Path.Combine(dirPath, fileName);
+                                fileName = fileName.Replace('\\', '/');
+                                propNode["src"] = fileName;
+                            }
+                            else
+                            {
+                                propNode["src"] = Path.ChangeExtension(path, ".webp");
+                            }
+
+                            mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
+                        }
+
+                        mediaEntity.SetValue("umbracoExtension", "webp");
+                        FileInfo imgInfo = new(processedFilePath);
+                        mediaEntity.SetValue("umbracoBytes", imgInfo.Length);
+                    }
+                }  
+                
+                //Deleting original files
+                if(!keepOriginals)
+                {
+                    TryDeleteFile(originalFilePath);
                 }
+
+                mediaService.Save(mediaEntity);
 
             }
         }
@@ -127,7 +192,56 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 return false;
             }
         }
-        private string CreateNewPath(string filePath)
+        private static bool ConvertImage(string sourcePath, string targetPath, string convertMode, int convertQuality)
+        {
+            WebpEncoder? encoder; 
+            
+            switch (convertMode) 
+            {
+                case "lossy":
+                {
+                    encoder = new WebpEncoder()
+                    {
+                        Quality = convertQuality,
+                        FileFormat = WebpFileFormatType.Lossy
+                    };
+                    break;
+                }
+                   
+                case "lossless":
+                {
+                    encoder = new WebpEncoder()
+                    {
+                        Quality = convertQuality,
+                        FileFormat = WebpFileFormatType.Lossless
+                    };
+                    break;
+                }
+                default:
+                    {
+                        encoder = new WebpEncoder()
+                        {
+                            Quality = convertQuality,
+                            FileFormat = WebpFileFormatType.Lossy
+                        };
+                        break;
+                    }
+            }
+
+            try
+            {
+                var img = Image.Load(sourcePath);
+                img.Save(targetPath, encoder!);
+
+                return true;
+            }
+            catch 
+            {
+                return false;
+            }
+
+        }
+        private static string CreateNewPath(string filePath, out string generatedSuffix)
         {
             var newPath = string.Empty;
 
@@ -140,7 +254,8 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
             do
             {
-                newPath = $"{folderPath}\\{fileNameWithoutExtension}_processed_{retry}{fileExtension}";
+                generatedSuffix = $"_processed_{retry}";
+                newPath = $"{folderPath}\\{fileNameWithoutExtension}{generatedSuffix}{fileExtension}";
                 retry++;
             }
             while (System.IO.File.Exists(newPath));
@@ -173,9 +288,6 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 return false;
             }
         }
-
-         
-
 
     }
 }
