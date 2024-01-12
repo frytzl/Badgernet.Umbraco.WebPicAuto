@@ -15,5 +15,6 @@ namespace Badgernet.Umbraco.WebPicAuto.Settings
         public int WpaTargetWidth { get; set; } = 1920;
         public int WpaTargetHeight { get; set; } = 1080;
         public bool WpaKeepOriginals { get; set; } = false;
+        public string WpaIgnoreKeyword {get;set;} = "wpaignore";
     }
 }
