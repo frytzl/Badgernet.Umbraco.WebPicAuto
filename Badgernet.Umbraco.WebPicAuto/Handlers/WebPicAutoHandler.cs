@@ -5,7 +5,6 @@ using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.PropertyEditors;
-using Umbraco.Cms.Core.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Image = SixLabors.ImageSharp.Image;
@@ -22,7 +21,6 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 {
     public class WebPicAutoHandler(IWebHostEnvironment hostEnvironment, 
                                    IOptions<WebPicAutoSettings> options,
-                                   IMediaService mediaService,
                                    ICoreScopeProvider scopeProvider,
                                    MediaUrlGeneratorCollection mediaUrlGenerator) : INotificationHandler<MediaSavingNotification>
     {
@@ -77,7 +75,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                         mediaEntity.Name = mediaEntity.Name.Replace(ignoreKeyword, string.Empty,StringComparison.CurrentCultureIgnoreCase);
                     }
                     
-                    //var result = mediaService.Save(mediaEntity);
+                    //mediaService.Save(mediaEntity);
 
                     continue;  
                 }
@@ -193,7 +191,6 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                     TryDeleteFile(originalFilePath);
                 }
 
-                //mediaService.Save(mediaEntity);
             }
         }
 
