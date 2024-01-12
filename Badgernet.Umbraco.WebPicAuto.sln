@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Badgernet.Umbraco.WebPicAuto", "Badgernet.Umbraco.WebPicAuto\Badgernet.Umbraco.WebPicAuto.csproj", "{E34E5452-27A7-4B54-A782-E711ADC68FD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Badgernet.Umbraco.TestingProject", "Badgernet.Umbraco.TestingProject\Badgernet.Umbraco.TestingProject.csproj", "{4ECFBF4C-68DA-42F1-99F2-8DFDE7918F90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Badgernet.Umbraco.TestingProject", "Badgernet.Umbraco.TestingProject\Badgernet.Umbraco.TestingProject.csproj", "{4ECFBF4C-68DA-42F1-99F2-8DFDE7918F90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

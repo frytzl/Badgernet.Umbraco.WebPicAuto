@@ -1,1 +1,0 @@
-# Badgernet.Umbraco.WebPicAuto

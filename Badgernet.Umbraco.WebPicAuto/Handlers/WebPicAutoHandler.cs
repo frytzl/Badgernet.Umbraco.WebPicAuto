@@ -56,7 +56,31 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 if (string.IsNullOrEmpty(originalFilePath) || string.IsNullOrEmpty(processedFilePath)) continue; //Skip if paths not good
                 if (mediaEntity.Id > 0) continue; //Skip any not-new images
 
-                if(Path.GetFileNameWithoutExtension(originalFilePath).Contains(ignoreKeyword)) continue; //Ignore 
+                if (Path.GetFileNameWithoutExtension(originalFilePath).Contains(ignoreKeyword,StringComparison.CurrentCultureIgnoreCase)) 
+                {
+                    processedFilePath = originalFilePath.Replace(ignoreKeyword, string.Empty);
+                    File.Move(originalFilePath, processedFilePath, true);
+
+                    var jsonString = mediaEntity.GetValue<string>("umbracoFile");
+
+                    if (jsonString == null) continue;
+
+                    var propNode = JsonNode.Parse((string)jsonString);
+                    string? path = propNode!["src"]!.GetValue<string>();
+                    path = path.Replace(ignoreKeyword, string.Empty);
+
+                    propNode["src"] = path;
+
+                    mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
+                    if(mediaEntity.Name != null)
+                    {
+                        mediaEntity.Name = mediaEntity.Name.Replace(ignoreKeyword, string.Empty,StringComparison.CurrentCultureIgnoreCase);
+                    }
+                    
+                    //var result = mediaService.Save(mediaEntity);
+
+                    continue;  
+                }
 
                 try
                 {
@@ -169,7 +193,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                     TryDeleteFile(originalFilePath);
                 }
 
-                mediaService.Save(mediaEntity);
+                //mediaService.Save(mediaEntity);
             }
         }
 
@@ -213,7 +237,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
             if (currentSize.Width > targetSize.Width || currentSize.Height > targetSize.Height)
             {
-                double ratio = currentSize.Width / currentSize.Height;
+                double ratio = (double)currentSize.Width / (double)currentSize.Height;
 
                 if (ratio > 1)
                 {
