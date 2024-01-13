@@ -2,8 +2,8 @@
   "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
   "AuthorDetails": {
     "Name": "David Jazbec",
-    "Description": "Inspired by Vrijdagonline.ImageResizer",
-    "Url": "https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto/new/master",
+    "Description": "",
+    "Url": "https://badgernet.de",
     "ImageUrl": ""
   },
   "Title": "WebPicAuto",
