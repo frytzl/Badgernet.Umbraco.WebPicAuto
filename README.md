@@ -68,4 +68,4 @@ Any images containing this keyword in their name will be ignored by this package
 ```
 
 # Credits
-This project was inspired by [@VirjdagOnline.ImageResizer]([https://www.nuget.org/packages/VrijdagOnline.ImageResizer])
+This project was inspired by [@VirjdagOnline.ImageResizer]
