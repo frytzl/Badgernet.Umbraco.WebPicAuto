@@ -12,6 +12,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Settings
         public bool WpaEnableConverting { get; set; } = false;
         public string WpaConvertMode { get; set; } = "lossy";
         public int WpaConvertQuality { get; set; } = 80;
+        public bool WpaIgnoreAspectRatio { get; set; } = false;
         public int WpaTargetWidth { get; set; } = 1920;
         public int WpaTargetHeight { get; set; } = 1080;
         public bool WpaKeepOriginals { get; set; } = false;

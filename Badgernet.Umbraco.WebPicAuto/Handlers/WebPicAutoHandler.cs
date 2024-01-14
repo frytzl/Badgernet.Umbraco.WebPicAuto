@@ -29,6 +29,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             bool resizingEnabled = options.Value.WpaEnableResizing;
             bool convertingEnabled = options.Value.WpaEnableConverting;
             int convertQuality = options.Value.WpaConvertQuality;
+            bool ignoreAspectRatio = options.Value.WpaIgnoreAspectRatio;
             int targetWidth = options.Value.WpaTargetWidth;
             int targetHeight = options.Value.WpaTargetHeight;
             bool keepOriginals = options.Value.WpaKeepOriginals;
@@ -74,18 +75,20 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                     {
                         mediaEntity.Name = mediaEntity.Name.Replace(ignoreKeyword, string.Empty,StringComparison.CurrentCultureIgnoreCase);
                     }
-                    
-                    //mediaService.Save(mediaEntity);
 
                     continue;  
                 }
+
+
+                using var scope = scopeProvider.CreateCoreScope(autoComplete: true);
+                using var _ = scope.Notifications.Suppress();
 
                 try
                 {
                     var widthValue = mediaEntity.GetValue<string>("umbracoWidth");
                     var heightValue = mediaEntity.GetValue<string>("umbracoHeight");
 
-                    if(widthValue != null && heightValue != null)
+                    if (widthValue != null && heightValue != null)
                     {
                         originalSize.Width = int.Parse(widthValue);
                         originalSize.Height = int.Parse(heightValue);
@@ -96,17 +99,20 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                     continue; //Skip if dimensions cannot be parsed 
                 }
 
-                using var scope = scopeProvider.CreateCoreScope(autoComplete: true);
-                using var _ = scope.Notifications.Suppress();
-
-
+                //Override appsettings targetSize if provided in image filename
+                var parsedTargetSize = GetTargetFromFileName(Path.GetFileNameWithoutExtension(originalFilePath));
+                if(parsedTargetSize != null)
+                {
+                    targetWidth = parsedTargetSize.Value.Width;
+                    targetHeight = parsedTargetSize.Value.Height;
+                }
 
                 //Image resizing part
                 var wasResized = false;
                 var needsResizing = originalSize.Width > targetWidth || originalSize.Height > targetHeight;
                 if(needsResizing && resizingEnabled)
                 {
-                    var newSize = ResizeImage(originalFilePath, processedFilePath, new Size(targetWidth, targetHeight));
+                    var newSize = ResizeImage(originalFilePath, processedFilePath, new Size(targetWidth, targetHeight), ignoreAspectRatio);
                     if(newSize != null)
                     {
                         var imagePathJson = mediaEntity.GetValue<string>("umbracoFile");
@@ -145,10 +151,8 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                         sourceFilePath = originalFilePath;
                     }
 
-
                     tempFilePath = processedFilePath;
                     processedFilePath = Path.ChangeExtension(processedFilePath, ".webp");
-
 
                     if(ConvertImage(sourceFilePath, processedFilePath, convertMode, convertQuality))
                     {
@@ -201,13 +205,13 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
         /// <param name="targetPath">Path where to save converted image</param>
         /// <param name="targetSize">Size box for image to be fit into</param>
         /// <returns>Image size after resizing if successfull, null if resizing failed</returns>
-        private static Size? ResizeImage(string sourcePath, string targetPath, Size targetSize)
+        private static Size? ResizeImage(string sourcePath, string targetPath, Size targetSize, bool ignoreAspectRatio)
         {
             try
             {
                 using var img = Image.Load(sourcePath);
 
-                var newSize = CalculateNewSize(img.Size,targetSize);
+                var newSize = CalculateNewSize(img.Size, targetSize, ignoreAspectRatio);
 
                 img.Mutate(img =>
                 {
@@ -227,13 +231,18 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
         }
 
 
-        private static Size CalculateNewSize(Size currentSize, Size targetSize)
+        private static Size CalculateNewSize(Size currentSize, Size targetSize, bool ignoreAspectRatio )
         {
             var newWidth = currentSize.Width;
             var newHeight = currentSize.Height;
 
             if (currentSize.Width > targetSize.Width || currentSize.Height > targetSize.Height)
             {
+                if(ignoreAspectRatio)
+                {
+                    return targetSize;
+                }
+
                 double ratio = (double)currentSize.Width / (double)currentSize.Height;
 
                 if (ratio > 1)
@@ -360,5 +369,44 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             }
         }
 
+        private Size? GetTargetFromFileName(string fileName)
+        {
+            if (!fileName.StartsWith("wparesize_")) return null;
+            if (fileName.Length < 11) return null;
+
+            try
+            {
+                var size = new Size(int.MaxValue, int.MaxValue);
+
+                var buffer = string.Empty;
+                for (int i = 10; i < fileName.Length; i++)
+                {
+                    if (fileName[i] == '_')
+                    {
+                        if (size.Width == int.MaxValue)
+                        {
+                            size.Width = int.Parse(buffer);
+                            buffer = string.Empty;
+                        }
+                        else
+                        {
+                            size.Height = int.Parse(buffer);
+                            return size;
+                        }
+                    }
+                    else
+                    {
+                        buffer += fileName[i];
+                    }
+                }
+                return null;
+            }
+            catch 
+            {
+                return null;
+            }
+
+            
+        }
     }
 }

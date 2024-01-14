@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -10,18 +10,44 @@
     <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
     <Product>Badgernet.Umbraco.WebPicAuto</Product>
     <Title>Badgernet.Umbraco.WebPicAuto</Title>
+	<Version>1.0.1</Version>
     <Description>...</Description>
-    <PackageTags>umbraco plugin package</PackageTags>
+    <PackageTags>umbraco plugin package;umbraco-marketplace;webp; </PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="13.0.3" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="13.0.3" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.0.3" />
+    <PackageReference Include="Umbraco.Cms" Version="[13,14)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[13,14)" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[13,14)" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 </Project>
