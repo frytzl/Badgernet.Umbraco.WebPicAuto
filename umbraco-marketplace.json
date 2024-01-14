@@ -1,0 +1,17 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "David Jazbec",
+    "Description": "",
+    "Url": "https://badgernet.de",
+    "ImageUrl": ""
+  },
+  "Title": "WebPicAuto",
+  "Description": "This package automatically converts uploaded pictures into .webp format. It also downscales images to desired size.",
+  "Category": "Editor Tools",
+  "LicenseTypes": [ "Free" ],
+  "PackageType": "Package",
+  "Tags": [
+    "Format converter & downscaler"
+  ]
+}
