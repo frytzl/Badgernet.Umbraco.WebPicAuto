@@ -3,24 +3,96 @@
 <div ng-controller="Badgernet.Umbraco.WebPicAutoController as vm" class="wpaDashboard">
 
     <p>You can now change your WebPicAuto settings here...</p>
-    <br />
 
-    <uui-toggle label="Enable Resizer" label-position="left" ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}"></uui-toggle>
-    <br />
-    <uui-toggle label="Enable Converter" label-position="left"  ng-attr-checked="{{vm.settings.WpaEnableConverting ? 'checked' : undefined}}"></uui-toggle>
-    <br />
-    <uui-select label="Convert mode" options=""></uui-select>
-    <br />
-    <uui-input label="Convert quelity" type="number" min="1" step="1" value="{{vm.settings.WpaConvertQuality}}"></uui-input>
-    <br />
-    <uui-input label="Width" type="number" min="1" step="1" value="{{vm.settings.WpaTargetWidth}}"></uui-input>
-    <br />
-    <uui-input label="Height" type="number" min="1" step="1" value="{{vm.settings.WpaTargetHeight}}"></uui-input>
-    <br />
-    <uui-toggle label="Ignore aspect ratio" label-position="left"  ng-attr-checked="{{vm.settings.WpaIgnoreAspectRatio ? 'checked' : undefined}}"></uui-toggle>
-    <br />
-    <uui-toggle label="Keep original images" label-position="left"  ng-attr-checked="{{vm.settings.WpaKeepOriginals ? 'checked' : undefined}}"></uui-toggle>
+    <uui-table aria-label="SettingsTable">
 
+        <uui-table-column style="width: 20%"></uui-table-column>
+        <uui-table-column style="width: 80%"></uui-table-column>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Resizer enabled</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-toggle ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}"></uui-toggle>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Converter enabled</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-toggle ng-attr-checked="{{vm.settings.WpaEnableConverting ? 'checked' : undefined}}"></uui-toggle>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Ignore aspect ratio</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-toggle ng-attr-checked="{{vm.settings.WpaIgnoreAspectRatio ? 'checked' : undefined}}"></uui-toggle>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Convert mode</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-radio-group name="radioGroup">
+                    <uui-radio value="1" ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossy' ? 'checked' : undefined}}">Lossy</uui-radio>
+                    <uui-radio value="2" ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossless' ? 'checked' : undefined}}">Lossless</uui-radio>
+                </uui-radio-group>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Convert quality</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaConvertQuality}}"></uui-input>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Target width</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaTargetWidth}}"></uui-input>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Target heigth</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaTargetHeight}}"></uui-input>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-label>Keep original images</uui-label>
+            </uui-table-cell>
+            <uui-table-cell>
+                <uui-toggle label="Keep original images" label-position="left" ng-attr-checked="{{vm.settings.WpaKeepOriginals ? 'checked' : undefined}}"></uui-toggle>
+            </uui-table-cell>
+        </uui-table-row>
+
+        <uui-table-row>
+            <uui-table-cell>
+                <uui-button look="primary">Save</uui-button>
+            </uui-table-cell>
+            <uui-table-cell></uui-table-cell>
+        </uui-table-row>
+    </uui-table>
+
+    
 
 </div>   
 
