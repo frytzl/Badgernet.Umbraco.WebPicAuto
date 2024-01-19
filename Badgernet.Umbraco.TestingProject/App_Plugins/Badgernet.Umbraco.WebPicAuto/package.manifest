@@ -1,0 +1,23 @@
+{
+  "id": "Badgernet.Umbraco.WebPicAuto",
+  "name": "WebPicAuto",
+  "version": "1.0.1",
+  "allowPackageTelemetry": true,
+
+  "dashboards": [
+    {
+      "alias": "wpaDashboard",
+      "view": "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaDashboard.html",
+      "sections": [ "media" ],
+      "weight": 100,
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" },
+        { "grant": "editor" }
+      ]
+    }
+  ],
+  "javascript": [
+    "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaDashboard.js"
+  ]
+}

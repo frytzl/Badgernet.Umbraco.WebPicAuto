@@ -1,6 +1,19 @@
 {
-    "id": "Badgernet.Umbraco.WebPicAuto",
-    "name": "WebPicAuto",
-    "version": "1.0.1",
-    "allowPackageTelemetry": true
+  "id": "Badgernet.Umbraco.WebPicAuto",
+  "name": "WebPicAuto",
+  "version": "1.0.1",
+  "allowPackageTelemetry": true,
+
+  "dashboards": [
+    {
+      "alias": "welcomeDashboard",
+      "view": "/App_Plugins/CustomWelcomeDashboard/WelcomeDashboard.html",
+      "sections": [ "content" ],
+      "weight": -10,
+      "access": [
+        { "deny": "translator" },
+        { "grant": "admin" }
+      ]
+    }
+  ]
 }

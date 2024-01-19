@@ -10,7 +10,7 @@
     <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
     <Product>Badgernet.Umbraco.WebPicAuto</Product>
     <Title>Badgernet.Umbraco.WebPicAuto</Title>
-	<Version>1.0.1</Version>
+	<Version>1.0.2</Version>
     <Description>...</Description>
     <PackageTags>umbraco plugin package;umbraco-marketplace;webp; </PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
@@ -49,5 +49,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\" />
+	<Folder Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\" />
   </ItemGroup>
 </Project>
