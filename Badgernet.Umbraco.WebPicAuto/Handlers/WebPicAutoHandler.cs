@@ -142,14 +142,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                     var sourceFilePath = string.Empty;
                     var tempFilePath = string.Empty;
 
-                    if(wasResized)
-                    {
-                        sourceFilePath = processedFilePath;
-                    }
-                    else
-                    {
-                        sourceFilePath = originalFilePath;
-                    }
+                    sourceFilePath = wasResized ? processedFilePath : originalFilePath;
 
                     tempFilePath = processedFilePath;
                     processedFilePath = Path.ChangeExtension(processedFilePath, ".webp");
@@ -164,8 +157,8 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                         if (jsonString != null)
                         {
                             var propNode = JsonNode.Parse((string)jsonString);
-                            string? path = propNode!["src"]!.GetValue<string>();
-                            
+                            var path = propNode!["src"]!.GetValue<string>();
+
                             if(!wasResized)
                             {
                                 var dirPath = Path.GetDirectoryName(path);
@@ -199,12 +192,13 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
         }
 
         /// <summary>
-        /// Resizes Image to fit into targetSize mantaining aspect ratio.
+        /// Resizes Image to fit into targetSize maintaining aspect ratio.
         /// </summary>
-        /// <param name="sourcePath">Path to imagefile to be converted</param>
+        /// <param name="sourcePath">Path to image-file to be converted</param>
         /// <param name="targetPath">Path where to save converted image</param>
         /// <param name="targetSize">Size box for image to be fit into</param>
-        /// <returns>Image size after resizing if successfull, null if resizing failed</returns>
+        /// <param name="ignoreAspectRatio">If true image will always keep its aspect ratio</param>
+        /// <returns>Image size after resizing if successful, null if resizing failed</returns>
         private static Size? ResizeImage(string sourcePath, string targetPath, Size targetSize, bool ignoreAspectRatio)
         {
             try
@@ -213,9 +207,9 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
                 var newSize = CalculateNewSize(img.Size, targetSize, ignoreAspectRatio);
 
-                img.Mutate(img =>
+                img.Mutate(x =>
                 {
-                    img.Resize(newSize.Width,newSize.Height);
+                    x.Resize(newSize.Width,newSize.Height);
                 });
 
                 img.Mutate(x => x.AutoOrient());
@@ -236,35 +230,36 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             var newWidth = currentSize.Width;
             var newHeight = currentSize.Height;
 
-            if (currentSize.Width > targetSize.Width || currentSize.Height > targetSize.Height)
+            //Upscaling not intended -> return original size
+            if (currentSize.Width <= targetSize.Width && currentSize.Height <= targetSize.Height)
+                return new Size(newWidth, newHeight);
+            
+            if(ignoreAspectRatio)
             {
-                if(ignoreAspectRatio)
-                {
-                    return targetSize;
-                }
+                return targetSize;
+            }
 
-                double ratio = (double)currentSize.Width / (double)currentSize.Height;
+            var aspectRatio = (double)currentSize.Width / (double)currentSize.Height;
 
-                if (ratio > 1)
-                {
-                    newWidth = targetSize.Width;
-                    newHeight = (int)(newWidth / ratio);
-                    if (newHeight > targetSize.Height)
-                    {
-                        newHeight = targetSize.Height;
-                        newWidth = (int)(newHeight * ratio);
-                    }
-                }
-                else
+            if (aspectRatio > 1)
+            {
+                newWidth = targetSize.Width;
+                newHeight = (int)(newWidth / aspectRatio);
+                if (newHeight > targetSize.Height)
                 {
                     newHeight = targetSize.Height;
-                    newWidth = (int)(newHeight * ratio);
+                    newWidth = (int)(newHeight * aspectRatio);
+                }
+            }
+            else
+            {
+                newHeight = targetSize.Height;
+                newWidth = (int)(newHeight * aspectRatio);
 
-                    if (newWidth > targetSize.Width)
-                    {
-                        newHeight = (int)(newWidth / ratio);
-                        newWidth = targetSize.Width;
-                    }
+                if (newWidth > targetSize.Width)
+                {
+                    newHeight = (int)(newWidth / aspectRatio);
+                    newWidth = targetSize.Width;
                 }
             }
             return new Size(newWidth,newHeight);
@@ -272,39 +267,24 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
         private static bool ConvertImage(string sourcePath, string targetPath, string convertMode, int convertQuality)
         {
-            WebpEncoder? encoder; 
-            
-            switch (convertMode) 
+            var encoder = convertMode switch
             {
-                case "lossy":
+                "lossy" => new WebpEncoder()
                 {
-                    encoder = new WebpEncoder()
-                    {
-                        Quality = convertQuality,
-                        FileFormat = WebpFileFormatType.Lossy
-                    };
-                    break;
-                }
-                   
-                case "lossless":
+                    Quality = convertQuality, 
+                    FileFormat = WebpFileFormatType.Lossy
+                },
+                "lossless" => new WebpEncoder()
                 {
-                    encoder = new WebpEncoder()
-                    {
-                        Quality = convertQuality,
-                        FileFormat = WebpFileFormatType.Lossless
-                    };
-                    break;
-                }
-                default:
-                    {
-                        encoder = new WebpEncoder()
-                        {
-                            Quality = convertQuality,
-                            FileFormat = WebpFileFormatType.Lossy
-                        };
-                        break;
+                    Quality = convertQuality,
+                    FileFormat = WebpFileFormatType.Lossless
+                },
+                _ => new WebpEncoder() 
+                    { 
+                        Quality = convertQuality, 
+                        FileFormat = WebpFileFormatType.Lossy 
                     }
-            }
+            };
 
             try
             {
@@ -317,18 +297,17 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             {
                 return false;
             }
-
         }
         private static string CreateNewPath(string filePath, out string generatedSuffix)
         {
-            var newPath = string.Empty;
+            string newPath;
 
             var retry = 1;
             FileInfo fileInfo = new(filePath);
-            string? folderPath = fileInfo.DirectoryName;
+            var folderPath = fileInfo.DirectoryName;
             var fileExtension = fileInfo.Extension;
-            string fullFileName = fileInfo.Name;
-            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fullFileName);
+            var fullFileName = fileInfo.Name;
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fullFileName);
 
             do
             {
@@ -336,7 +315,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 newPath = $"{folderPath}\\{fileNameWithoutExtension}{generatedSuffix}{fileExtension}";
                 retry++;
             }
-            while (System.IO.File.Exists(newPath));
+            while (File.Exists(newPath));
 
 
             newPath = newPath.Replace("\\","/"); 
@@ -369,7 +348,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             }
         }
 
-        private Size? GetTargetFromFileName(string fileName)
+        private static Size? GetTargetFromFileName(string fileName)
         {
             if (!fileName.StartsWith("wparesize_")) return null;
             if (fileName.Length < 11) return null;
@@ -379,7 +358,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 var size = new Size(int.MaxValue, int.MaxValue);
 
                 var buffer = string.Empty;
-                for (int i = 10; i < fileName.Length; i++)
+                for (var i = 10; i < fileName.Length; i++)
                 {
                     if (fileName[i] == '_')
                     {

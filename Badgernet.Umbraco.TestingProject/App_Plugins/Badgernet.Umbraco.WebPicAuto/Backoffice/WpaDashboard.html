@@ -1,5 +1,6 @@
 
 
+<!--suppress ALL -->
 <div ng-controller="Badgernet.Umbraco.WebPicAutoController as vm" class="wpaDashboard">
 
     <p>You can now change your WebPicAuto settings here...</p>
@@ -14,7 +15,8 @@
                 <uui-label>Resizer enabled</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-toggle ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}"></uui-toggle>
+                <uui-toggle ng-model="vm.settings.WpaEnableResizing" ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}"></uui-toggle>
+                <p>{{vm.settings.WpaEnableResizing}}</p>
             </uui-table-cell>
         </uui-table-row>
 
@@ -33,6 +35,7 @@
             </uui-table-cell>
             <uui-table-cell>
                 <uui-toggle ng-attr-checked="{{vm.settings.WpaIgnoreAspectRatio ? 'checked' : undefined}}"></uui-toggle>
+                <input type="checkbox" checked="true"></input>
             </uui-table-cell>
         </uui-table-row>
 
@@ -53,7 +56,9 @@
                 <uui-label>Convert quality</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaConvertQuality}}"></uui-input>
+                <uui-input type="number" min="1" step="1" ng-model="vm.settings.WpaConvertQuality" value="{{vm.settings.WpaConvertQuality}}">3463434636364</uui-input>
+                <input type="number" ng-model="vm.settings.WpaConvertQuality" value="{{vm.settings.WpaConvertQuality}}"></input>
+                <p>{{vm.settings.WpaConvertQuality}}</p>
             </uui-table-cell>
         </uui-table-row>
 
@@ -86,14 +91,11 @@
 
         <uui-table-row>
             <uui-table-cell>
-                <uui-button look="primary">Save</uui-button>
+                <uui-button look="primary" ng-click="commit()">Save</uui-button>
             </uui-table-cell>
             <uui-table-cell></uui-table-cell>
         </uui-table-row>
     </uui-table>
-
-    
-
 </div>   
 
 

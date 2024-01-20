@@ -29,7 +29,10 @@ namespace Badgernet.Umbraco.Controllers
             return JsonConvert.SerializeObject(_settings);
         }
 
-
-
+        public string SetSettings(object payload)
+        {
+            var i = 0;
+            return "Payload received";//Test
+        }
     }
 }

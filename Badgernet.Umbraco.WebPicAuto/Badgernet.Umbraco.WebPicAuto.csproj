@@ -31,12 +31,9 @@
   <ItemGroup>
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\logo.png">
+    <None Update="logo.png">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 
