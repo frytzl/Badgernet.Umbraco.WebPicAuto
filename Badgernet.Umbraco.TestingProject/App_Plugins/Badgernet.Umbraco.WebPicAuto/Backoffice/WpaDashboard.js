@@ -15,7 +15,18 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
             ).then(function (){
                 alert("Success")
             });
-        }
+        };
+        
+        $scope.toggle = function (propName){
+            let currentValue = vm.settings[propName];
+            vm.settings[propName] = !currentValue;
+        };
+        
+        $scope.setProperty = function (propName, value){
+            vm.settings[propName] = value;
+        };
+
+        
     }
     init();
     

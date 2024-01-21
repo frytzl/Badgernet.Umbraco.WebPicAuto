@@ -10,22 +10,16 @@
         <uui-table-column style="width: 20%"></uui-table-column>
         <uui-table-column style="width: 80%"></uui-table-column>
 
-        <uui-table-row>
-            <uui-table-cell>
-                <uui-label>Resizer enabled</uui-label>
-            </uui-table-cell>
-            <uui-table-cell>
-                <uui-toggle ng-model="vm.settings.WpaEnableResizing" ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}"></uui-toggle>
-                <p>{{vm.settings.WpaEnableResizing}}</p>
-            </uui-table-cell>
-        </uui-table-row>
 
         <uui-table-row>
             <uui-table-cell>
                 <uui-label>Converter enabled</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-toggle ng-attr-checked="{{vm.settings.WpaEnableConverting ? 'checked' : undefined}}"></uui-toggle>
+                <uui-toggle label=" "
+                            onchange="angular.element(this).scope().toggle('WpaEnableConverting')"
+                            ng-attr-checked="{{vm.settings.WpaEnableConverting ? 'checked' : undefined}}">
+                </uui-toggle>
             </uui-table-cell>
         </uui-table-row>
 
@@ -34,8 +28,10 @@
                 <uui-label>Ignore aspect ratio</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-toggle ng-attr-checked="{{vm.settings.WpaIgnoreAspectRatio ? 'checked' : undefined}}"></uui-toggle>
-                <input type="checkbox" checked="true"></input>
+                <uui-toggle label=" "
+                            onchange="angular.element(this).scope().toggle('WpaEnableConverting')"
+                            ng-attr-checked="{{vm.settings.WpaIgnoreAspectRatio ? 'checked' : undefined}}">
+                </uui-toggle>
             </uui-table-cell>
         </uui-table-row>
 
@@ -45,8 +41,12 @@
             </uui-table-cell>
             <uui-table-cell>
                 <uui-radio-group name="radioGroup">
-                    <uui-radio value="1" ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossy' ? 'checked' : undefined}}">Lossy</uui-radio>
-                    <uui-radio value="2" ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossless' ? 'checked' : undefined}}">Lossless</uui-radio>
+                    <uui-radio value="1"
+                               onchange="angular.element(this).scope().setProperty('WpaConvertMode','lossy')"
+                               ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossy' ? 'checked' : undefined}}">Lossy</uui-radio>
+                    <uui-radio value="2"
+                               onchange="angular.element(this).scope().setProperty('WpaConvertMode','lossless')"
+                               ng-attr-checked="{{vm.settings.WpaConvertMode == 'lossless' ? 'checked' : undefined}}">Lossless</uui-radio>
                 </uui-radio-group>
             </uui-table-cell>
         </uui-table-row>
@@ -56,36 +56,25 @@
                 <uui-label>Convert quality</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-input type="number" min="1" step="1" ng-model="vm.settings.WpaConvertQuality" value="{{vm.settings.WpaConvertQuality}}">3463434636364</uui-input>
-                <input type="number" ng-model="vm.settings.WpaConvertQuality" value="{{vm.settings.WpaConvertQuality}}"></input>
-                <p>{{vm.settings.WpaConvertQuality}}</p>
+                <uui-input type="number" 
+                           min="1" max="100" 
+                           value="{{vm.settings.WpaConvertQuality}}"
+                           oninput="angular.element(this).scope().setProperty('WpaConvertQuality',this.value)">
+                </uui-input>
             </uui-table-cell>
         </uui-table-row>
 
-        <uui-table-row>
-            <uui-table-cell>
-                <uui-label>Target width</uui-label>
-            </uui-table-cell>
-            <uui-table-cell>
-                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaTargetWidth}}"></uui-input>
-            </uui-table-cell>
-        </uui-table-row>
 
-        <uui-table-row>
-            <uui-table-cell>
-                <uui-label>Target heigth</uui-label>
-            </uui-table-cell>
-            <uui-table-cell>
-                <uui-input type="number" min="1" step="1" value="{{vm.settings.WpaTargetHeight}}"></uui-input>
-            </uui-table-cell>
-        </uui-table-row>
 
         <uui-table-row>
             <uui-table-cell>
                 <uui-label>Keep original images</uui-label>
             </uui-table-cell>
             <uui-table-cell>
-                <uui-toggle label="Keep original images" label-position="left" ng-attr-checked="{{vm.settings.WpaKeepOriginals ? 'checked' : undefined}}"></uui-toggle>
+                <uui-toggle label="" 
+                            onchange="angular.element(this).scope().toggle('WpaKeepOriginals')" 
+                            ng-attr-checked="{{vm.settings.WpaKeepOriginals ? 'checked' : undefined}}">
+                </uui-toggle>
             </uui-table-cell>
         </uui-table-row>
 
@@ -96,8 +85,79 @@
             <uui-table-cell></uui-table-cell>
         </uui-table-row>
     </uui-table>
-</div>   
+</div>
 
+
+<uui-table>
+
+    <uui-table-column style="width: 33%"></uui-table-column>
+    <uui-table-column style="width: 33%"></uui-table-column>
+    <uui-table-column style="width: 33%"></uui-table-column>
+
+    <uui-table-row>
+        <uui-table-cell>
+            <uui-box headline="Resizing">
+                <uui-table>
+                    <uui-table-column style="width: 50%"></uui-table-column>
+                    <uui-table-column style="width: 50%"></uui-table-column>
+
+                    <uui-table-row>
+                        <uui-table-cell>
+                            <uui-label>Resizer enabled</uui-label>
+                        </uui-table-cell>
+                        <uui-table-cell>
+                            <uui-toggle label=" "
+                                        onchange="angular.element(this).scope().toggle('WpaEnableResizing')"
+                                        ng-attr-checked="{{vm.settings.WpaEnableResizing ? 'checked' : undefined}}">
+                            </uui-toggle>
+                        </uui-table-cell>
+                    </uui-table-row>
+
+                    <uui-table-row>
+                        <uui-table-cell>
+                            <uui-label>Target width</uui-label>
+                        </uui-table-cell>
+                        <uui-table-cell>
+                            <uui-input type="number"
+                                       min="1" step="1"
+                                       value="{{vm.settings.WpaTargetWidth}}"
+                                       oninput="angular.element(this).scope().setProperty('WpaTargetWidth',this.value)">
+                            </uui-input>
+                        </uui-table-cell>
+                    </uui-table-row>
+
+                    <uui-table-row>
+                        <uui-table-cell>
+                            <uui-label>Target heigth</uui-label>
+                        </uui-table-cell>
+                        <uui-table-cell>
+                            <uui-input type="number"
+                                       min="1" step="1"
+                                       value="{{vm.settings.WpaTargetHeight}}"
+                                       oninput="angular.element(this).scope().setProperty('WpaTargetHeight',this.value)">
+                            </uui-input>
+                        </uui-table-cell>
+                    </uui-table-row>
+
+                    
+                </uui-table>
+            </uui-box>
+        </uui-table-cell>
+        
+        <uui-table-cell>
+            <uui-box headline="Converting">
+                
+            </uui-box>
+        </uui-table-cell>
+
+        <uui-table-cell>
+            <uui-box headline="general">
+                
+            </uui-box>
+        </uui-table-cell>
+    </uui-table-row>
+    
+    </uui-table>
 
 
 
