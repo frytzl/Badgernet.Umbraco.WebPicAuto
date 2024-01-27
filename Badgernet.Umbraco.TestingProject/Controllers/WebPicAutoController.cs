@@ -14,38 +14,34 @@ namespace Badgernet.Umbraco.Controllers
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class WebPicAutoController : UmbracoAuthorizedJsonController
     {
-        private readonly WebPicAutoSettings? _settings;
-        private IConfiguration? _config;  
+        private readonly IWpaSettingsProvider _settingsProvider;
+        private readonly ILogger<WebPicAutoController> _logger;
+        private WpaSettings? _currentSettings;
 
-        public WebPicAutoController(IConfiguration configuration)
+        public WebPicAutoController(IWpaSettingsProvider settingsProvider, ILogger<WebPicAutoController> logger)
         {
-            _config = configuration;
-            _settings = configuration.GetSection("WebPicAuto").Get<WebPicAutoSettings>();
-           
+            _settingsProvider = settingsProvider;
         }
 
         public string GetSettings()
         {
-            if(_settings == null)
-            {
-                return JsonConvert.SerializeObject(new WebPicAutoSettings()); //Return default values
-            }
-            return JsonConvert.SerializeObject(_settings);
+            _currentSettings ??= _settingsProvider.GetSettings();
+            return JsonConvert.SerializeObject(_currentSettings);
         }
 
-        public string SetSettings(JObject payload)
+        public string SetSettings(JObject settingsJson)
         {
             try
             {
-                var settings = payload.ToObject<WebPicAutoSettings>();
-
+                _currentSettings = settingsJson.ToObject<WpaSettings>();
+                _settingsProvider.PersistToFile(_currentSettings!);
                 
-                var a = 1;
-                return "Success";
+                return "Settings were saved.";
             }
             catch(Exception e)
             {
-                return "Data not accepted!";
+                _logger.LogError("Error when saving wpa settings: {0}", e.Message);
+                return "Something went wrong, check logs.";
             }
         }
     }

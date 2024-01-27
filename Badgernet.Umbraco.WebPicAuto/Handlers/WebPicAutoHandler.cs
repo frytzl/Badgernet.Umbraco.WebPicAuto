@@ -1,6 +1,5 @@
 ﻿using Badgernet.Umbraco.WebPicAuto.Settings;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
@@ -12,29 +11,45 @@ using Size = SixLabors.ImageSharp.Size;
 using File = System.IO.File;
 using Umbraco.Cms.Core.Scoping;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp.Formats.Webp;
-
-
-
 
 namespace Badgernet.Umbraco.WebPicAuto.Handlers
 {
-    public class WebPicAutoHandler(IWebHostEnvironment hostEnvironment, 
-                                   IOptions<WebPicAutoSettings> options,
-                                   ICoreScopeProvider scopeProvider,
-                                   MediaUrlGeneratorCollection mediaUrlGenerator) : INotificationHandler<MediaSavingNotification>
+    public class WebPicAutoHandler : INotificationHandler<MediaSavingNotification>
     {
+        private WpaSettings? _settings;
+        private readonly IWpaSettingsProvider _settingsProvider;
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly ICoreScopeProvider _scopeProvider;
+        private readonly ILogger<WebPicAutoHandler> _logger;
+        
+        private readonly MediaUrlGeneratorCollection _mediaUrlGeneratorCollection;
+
+        public WebPicAutoHandler(IWebHostEnvironment hostEnvironment, 
+                                 IWpaSettingsProvider wpaSettingsProvider,
+                                 ICoreScopeProvider scopeProvider,
+                                 ILogger<WebPicAutoHandler> logger,
+                                 MediaUrlGeneratorCollection mediaUrlGenerator)
+        {
+            _settingsProvider = wpaSettingsProvider;
+            _hostEnvironment = hostEnvironment;
+            _scopeProvider = scopeProvider;
+            _mediaUrlGeneratorCollection = mediaUrlGenerator;
+        }
         public void Handle(MediaSavingNotification notification)
         {
-            bool resizingEnabled = options.Value.WpaEnableResizing;
-            bool convertingEnabled = options.Value.WpaEnableConverting;
-            int convertQuality = options.Value.WpaConvertQuality;
-            bool ignoreAspectRatio = options.Value.WpaIgnoreAspectRatio;
-            int targetWidth = options.Value.WpaTargetWidth;
-            int targetHeight = options.Value.WpaTargetHeight;
-            bool keepOriginals = options.Value.WpaKeepOriginals;
-            string convertMode = options.Value.WpaConvertMode;
-            string ignoreKeyword = options.Value.WpaIgnoreKeyword;
+            _settings = _settingsProvider.GetSettings();
+            
+            bool resizingEnabled = _settings.WpaEnableResizing;
+            bool convertingEnabled = _settings.WpaEnableConverting;
+            int convertQuality = _settings.WpaConvertQuality;
+            bool ignoreAspectRatio = _settings.WpaIgnoreAspectRatio;
+            int targetWidth = _settings.WpaTargetWidth;
+            int targetHeight = _settings.WpaTargetHeight;
+            bool keepOriginals = _settings.WpaKeepOriginals;
+            string convertMode = _settings.WpaConvertMode;
+            string ignoreKeyword = _settings.WpaIgnoreKeyword;
 
             //Prevent Options being out of bounds 
             if (targetHeight < 1) targetHeight = 1;
@@ -78,9 +93,8 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
                     continue;  
                 }
-
-
-                using var scope = scopeProvider.CreateCoreScope(autoComplete: true);
+                
+                using var scope = _scopeProvider.CreateCoreScope(autoComplete: true);
                 using var _ = scope.Notifications.Suppress();
 
                 try
@@ -176,9 +190,9 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                             mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
                         }
 
+                        FileInfo targetImg = new(processedFilePath);
                         mediaEntity.SetValue("umbracoExtension", "webp");
-                        FileInfo imgInfo = new(processedFilePath);
-                        mediaEntity.SetValue("umbracoBytes", imgInfo.Length);
+                        mediaEntity.SetValue("umbracoBytes", targetImg.Length);
                     }
                 }  
                 
@@ -187,8 +201,12 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 {
                     TryDeleteFile(originalFilePath);
                 }
-
+                
+                
             }
+
+            //Write settings to file to preserve saved bytes values   
+            _settingsProvider.PersistToFile(_settings);
         }
 
         /// <summary>
@@ -199,27 +217,35 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
         /// <param name="targetSize">Size box for image to be fit into</param>
         /// <param name="ignoreAspectRatio">If true image will always keep its aspect ratio</param>
         /// <returns>Image size after resizing if successful, null if resizing failed</returns>
-        private static Size? ResizeImage(string sourcePath, string targetPath, Size targetSize, bool ignoreAspectRatio)
+        private Size? ResizeImage(string sourcePath, string targetPath, Size targetSize, bool ignoreAspectRatio)
         {
             try
             {
                 using var img = Image.Load(sourcePath);
-
                 var newSize = CalculateNewSize(img.Size, targetSize, ignoreAspectRatio);
 
                 img.Mutate(x =>
                 {
                     x.Resize(newSize.Width,newSize.Height);
                 });
-
                 img.Mutate(x => x.AutoOrient());
-
                 img.Save(targetPath);
 
+
+                //Calculate and save file size diff
+                if (File.Exists(sourcePath) && File.Exists(targetPath))
+                {
+                    FileInfo sourceImg = new(sourcePath);
+                    FileInfo resizedImg = new(targetPath);
+                    _settings!.WpaBytesSavedResizing += sourceImg.Length - resizedImg.Length;
+                    _settings!.WpaResizerCounter++;
+                }
+                
                 return img.Size;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError("WebPicAuto: error resizing image: {0}", e.Message);
                 return null;
             }
         }
@@ -265,7 +291,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             return new Size(newWidth,newHeight);
         }
 
-        private static bool ConvertImage(string sourcePath, string targetPath, string convertMode, int convertQuality)
+        private bool ConvertImage(string sourcePath, string targetPath, string convertMode, int convertQuality)
         {
             var encoder = convertMode switch
             {
@@ -291,10 +317,20 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 var img = Image.Load(sourcePath);
                 img.Save(targetPath, encoder!);
 
+                //Calculate file size diff and save it
+                if (File.Exists(sourcePath) && File.Exists(targetPath))
+                {
+                    FileInfo originalImg = new(sourcePath);
+                    FileInfo convertedImg= new(targetPath);
+                    _settings!.WpaBytesSavedConverting += originalImg.Length - convertedImg.Length;
+                    _settings!.WpaConverterCounter++;
+                }
+
                 return true;
             }
-            catch 
+            catch(Exception e) 
             {
+                _logger.LogError("WebPicAuto: error converting image: {0}", e.Message);
                 return false;
             }
         }
@@ -323,15 +359,15 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
         }
         private string GetMediaPath(IMedia media)
         {
-            var mediaPath = media.GetUrl("umbracoFile", mediaUrlGenerator);
-            var webRootPath = hostEnvironment.WebRootPath.Replace("\\", "/");
+            var mediaPath = media.GetUrl("umbracoFile", _mediaUrlGeneratorCollection);
+            var webRootPath = _hostEnvironment.WebRootPath.Replace("\\", "/");
 
             if (string.IsNullOrEmpty(mediaPath) || string.IsNullOrEmpty(webRootPath)) return string.Empty;
 
             return webRootPath + mediaPath;
 
         }
-        private static bool TryDeleteFile(string fileName)
+        private bool TryDeleteFile(string fileName)
         {
             try
             {
@@ -342,13 +378,14 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
 
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError("WebPicAuto: error while deleting file: {0}", e.Message);
                 return false;
             }
         }
 
-        private static Size? GetTargetFromFileName(string fileName)
+        private Size? GetTargetFromFileName(string fileName)
         {
             if (!fileName.StartsWith("wparesize_")) return null;
             if (fileName.Length < 11) return null;
@@ -380,12 +417,11 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
                 }
                 return null;
             }
-            catch 
+            catch (Exception e)
             {
+                _logger.LogError("WebPicAuto: error: {0}", e.Message);
                 return null;
             }
-
-            
         }
     }
 }

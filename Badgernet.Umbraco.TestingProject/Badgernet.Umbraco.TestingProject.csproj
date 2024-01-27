@@ -9,6 +9,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaSettings.json" />
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\en-US.xml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
