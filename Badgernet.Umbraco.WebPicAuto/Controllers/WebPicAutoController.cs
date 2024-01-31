@@ -4,12 +4,13 @@ using System.Linq;
 using Badgernet.Umbraco.WebPicAuto.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Authorization;
 
-namespace Badgernet.Umbraco.Controllers
+namespace Badgernet.Umbraco.WebPicAuto.Controllers
 {
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class WebPicAutoController : UmbracoAuthorizedJsonController
@@ -21,6 +22,7 @@ namespace Badgernet.Umbraco.Controllers
         public WebPicAutoController(IWpaSettingsProvider settingsProvider, ILogger<WebPicAutoController> logger)
         {
             _settingsProvider = settingsProvider;
+            _logger = logger;
         }
 
         public string GetSettings()

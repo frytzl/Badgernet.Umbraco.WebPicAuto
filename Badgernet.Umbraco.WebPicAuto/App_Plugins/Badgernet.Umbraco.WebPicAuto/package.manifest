@@ -6,14 +6,18 @@
 
   "dashboards": [
     {
-      "alias": "welcomeDashboard",
-      "view": "/App_Plugins/CustomWelcomeDashboard/WelcomeDashboard.html",
-      "sections": [ "content" ],
-      "weight": -10,
+      "alias": "wpaDashboard",
+      "view": "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaDashboard.html",
+      "sections": [ "media" ],
+      "weight": 100,
       "access": [
         { "deny": "translator" },
-        { "grant": "admin" }
+        { "grant": "admin" },
+        { "grant": "editor" }
       ]
     }
+  ],
+  "javascript": [
+    "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaDashboard.js"
   ]
 }

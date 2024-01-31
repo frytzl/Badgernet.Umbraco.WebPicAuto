@@ -66,7 +66,7 @@ public class WpaSettingsProvider : IWpaSettingsProvider
                 streamWriter.Write(jsonString);
                 return true;
             }
-            catch (Exception e)
+            catch 
             {
                 //LOG 
                 return false;

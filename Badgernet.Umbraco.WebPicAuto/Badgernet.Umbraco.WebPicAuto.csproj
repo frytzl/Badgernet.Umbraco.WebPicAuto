@@ -4,17 +4,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ContentTargetFolders>.</ContentTargetFolders>
+    <Copyright>David Jazbec</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
     <Product>Badgernet.Umbraco.WebPicAuto</Product>
     <Title>Badgernet.Umbraco.WebPicAuto</Title>
-	<Version>1.0.2</Version>
+	<Version>1.1.0</Version>
     <Description>...</Description>
     <PackageTags>umbraco plugin package;umbraco-marketplace;webp; </PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageIcon>logo.png</PackageIcon>
+    <PackageIcon>wpa_logo.png</PackageIcon>
     <PackageProjectUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</PackageProjectUrl>
     <RepositoryUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -31,10 +32,6 @@
   <ItemGroup>
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
-    <None Update="logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +40,10 @@
       <PackagePath>\</PackagePath>
     </None>
     <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="wpa_logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

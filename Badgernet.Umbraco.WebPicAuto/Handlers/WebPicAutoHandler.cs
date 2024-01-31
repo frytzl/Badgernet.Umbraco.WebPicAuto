@@ -36,6 +36,7 @@ namespace Badgernet.Umbraco.WebPicAuto.Handlers
             _hostEnvironment = hostEnvironment;
             _scopeProvider = scopeProvider;
             _mediaUrlGeneratorCollection = mediaUrlGenerator;
+            _logger = logger;
         }
         public void Handle(MediaSavingNotification notification)
         {
