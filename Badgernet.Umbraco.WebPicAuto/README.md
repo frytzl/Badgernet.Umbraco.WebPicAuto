@@ -1,16 +1,22 @@
 
 # Badgernet.Umbraco.WebPicAuto
 
-This package automatically converts uploaded pictures into .webp format. It also downscales images to desired size. 
+### Resizes and converts your images to .webp format on upload.
 
+\
+[![NuGet](https://img.shields.io/nuget/dt/Badgernet.Umbraco.WebPicAuto?ImageResizer?label=Downloads&color=green)](https://www.nuget.org/packages/Badgernet.Umbraco.WebPicAuto/)
 
 # Installation
-Simply add the package by using donet add package to install the latest version:
+Simply add the package by using dotnet add package to install the latest version:
 ```
 dotnet add package Badgernet.Umbraco.WebPicAuto
 ```
 
 # Changelog
+
+#### Version 1.1.0
+- Backoffice dashboard
+
 
 #### Version 1.0.1 
 - Added option to downscale images without keeping aspect ratio
@@ -18,64 +24,40 @@ dotnet add package Badgernet.Umbraco.WebPicAuto
     
 
 # Settings
-You can change these default settings by adding the section to the appsettings.json file and overwrite the values.
+You can change these default settings by accessing the "Converter/Resizer" dashboard in the Media section in backoffice.
 
+![image info](./Dash.png)
 
-```
-  "WebPicAuto": {
-    "WpaEnableResizing": true,
-    "WpaEnableConverting": true,
-    "WpaConvertMode": "lossy",
-    "WpaConvertQuality": 80,
-    "WpaIgnoreAspectRatio": false,
-    "WpaTargetWidth": 1920,
-    "WpaTargetHeight": 1080,
-    "WpaKeepOriginals": false,
-    "WpaIgnoreKeyword": "wpaignore_"
-  }
-```
+## Resizer enabled
+Turns image resizing on or off 
 
-#### Enable/disable resizing. 
+## Max width
+Resizer will scale images down to fit max width value
 
-```
-"WpaEnableResizing": true
-```
-#### Enable/disable converting to .webp format
+## Max height
+Resizer will scale images down to fit max height
 
-```
-"WpaEnableConverting": true
-```
-#### Convert mode
-Type of format conversion, possible values are "lossy" and "lossless"
-```
-"WpaConvertMode": "lossy"
-```
+## Ignore aspect ratio
+By default, resizing will maintain image aspect ratio. 
 
-#### Convert quality
-Valid values are from 1 to 100
-```
-"WpaConvertQuality": 80
-```
+## Converter enabled
+Turns image converting on or off
 
-#### Target width in px
-```
-""WpaTargetWidth": 1920
-```
+## Convert mode
+#### Image encoding type 
+"Lossy" mode will produce smaller file size images. <- this is the preferred / default mode  \
+"Lossless" mode will produce better quality images.
 
-#### Target height in px
-```
-"WpaTargetHeight": 1080
-```
+### Convert quality
+#### Value from 1 to 100
+Quality of conversion, lower value will produce smaller file size images but image quality will also be worse.
 
-#### Flag if orignal images should be kept
-```
-"WpaKeepOriginals": false
-```
-#### Ignore keyword
-Any images containing this keyword in their name will be ignored by this package. -> "wpaignore_IMG01012024.png" will not get processed.
-```
-"WpaIgnoreKeyword": "wpaignore"
-```
+### Keep original images
+If turned on, original images will not be deleted (wwwroot/media/***) 
+### Ignore keyword
+Any images containing this keyword in its filename will be ignored by this package. -> "wpaignore_IMG01012024.png" would not get processed.
+
 
 # Credits
+Thanks to everybody at [@Our Umbraco Forum]([https://our.umbraco.com/forum/]) for their helpful tips. \
 This project was inspired by [@VirjdagOnline.ImageResizer]([https://www.nuget.org/packages/VrijdagOnline.ImageResizer])

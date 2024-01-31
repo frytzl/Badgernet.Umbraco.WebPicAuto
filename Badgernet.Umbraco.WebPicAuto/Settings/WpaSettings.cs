@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Badgernet.Umbraco.WebPicAuto.Settings
 {
-    public class WebPicAutoSettings
+    public class WpaSettings
     {
         public bool WpaEnableResizing { get; set; } = false;
         public bool WpaEnableConverting { get; set; } = false;
@@ -17,5 +17,12 @@ namespace Badgernet.Umbraco.WebPicAuto.Settings
         public int WpaTargetHeight { get; set; } = 1080;
         public bool WpaKeepOriginals { get; set; } = false;
         public string WpaIgnoreKeyword {get;set;} = "wpaignore";
+
+        public int WpaResizerCounter { get; set; } = 0;
+
+        public int WpaConverterCounter { get; set; } = 0;
+        public long WpaBytesSavedResizing { get; set; } = 0;
+        public long WpaBytesSavedConverting{ get; set; } = 0;
+
     }
 }

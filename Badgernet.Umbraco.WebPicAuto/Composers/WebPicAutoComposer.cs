@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.Notifications;
 
 namespace Badgernet.Umbraco.WebPicAuto.Composers
@@ -16,8 +17,17 @@ namespace Badgernet.Umbraco.WebPicAuto.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
+            
             builder.AddNotificationHandler<MediaSavingNotification, WebPicAutoHandler>();
-            builder.Services.Configure<WebPicAutoSettings>(builder.Config.GetSection("WebPicAuto"));
+            builder.Services.AddSingleton<IWpaSettingsProvider>(x =>
+            {
+                var dir = System.Environment.CurrentDirectory;
+                var settingsPath = dir + "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json"; 
+                return new WpaSettingsProvider(settingsPath);
+            });
         }
+
+
+
     }
 }
