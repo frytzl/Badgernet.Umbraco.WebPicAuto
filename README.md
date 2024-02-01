@@ -31,7 +31,7 @@ dotnet add package Badgernet.Umbraco.WebPicAuto
 You can change these default settings by accessing the "Converter/Resizer" dashboard in the Media section in backoffice.
 Settings are stored in a file: "App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json"
 
-![image info](./Dash.png)
+![image info](https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto/blob/master/Badgernet.Umbraco.WebPicAuto/Dash.png)
 
 ## Resizer enabled
 Turns image resizing on or off
