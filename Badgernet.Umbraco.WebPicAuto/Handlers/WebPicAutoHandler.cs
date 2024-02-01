@@ -1,4 +1,4 @@
-﻿using Badgernet.Umbraco.WebPicAuto.Settings;
+﻿using Badgernet.WebPicAuto.Settings;
 using Microsoft.AspNetCore.Hosting;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
@@ -14,7 +14,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp.Formats.Webp;
 
-namespace Badgernet.Umbraco.WebPicAuto.Handlers
+namespace Badgernet.WebPicAuto.Handlers
 {
     public class WebPicAutoHandler : INotificationHandler<MediaSavingNotification>
     {

@@ -1,17 +1,10 @@
-﻿using Badgernet.Umbraco.WebPicAuto.Handlers;
-using Badgernet.Umbraco.WebPicAuto.Settings;
+﻿using Badgernet.WebPicAuto.Handlers;
+using Badgernet.WebPicAuto.Settings;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.Notifications;
 
-namespace Badgernet.Umbraco.WebPicAuto.Composers
+namespace Badgernet.WebPicAuto.Composers
 {
     internal class WebPicAutoComposer : IComposer
     {

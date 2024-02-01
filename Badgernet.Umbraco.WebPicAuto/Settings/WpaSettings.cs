@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Badgernet.Umbraco.WebPicAuto.Settings
+namespace Badgernet.WebPicAuto.Settings
 {
     public class WpaSettings
     {

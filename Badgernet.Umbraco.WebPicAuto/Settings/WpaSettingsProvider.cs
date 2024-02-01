@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Umbraco.Cms.Core.Hosting;
 
-namespace Badgernet.Umbraco.WebPicAuto.Settings;
+namespace Badgernet.WebPicAuto.Settings;
 
 public interface IWpaSettingsProvider
 {

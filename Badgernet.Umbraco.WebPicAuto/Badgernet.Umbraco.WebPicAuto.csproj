@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ContentTargetFolders>.</ContentTargetFolders>
     <Copyright>David Jazbec</Copyright>
+    <AssemblyName>Badgernet.WebPicAuto</AssemblyName>
+    <RootNamespace>Badgernet.WebPicAuto</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>

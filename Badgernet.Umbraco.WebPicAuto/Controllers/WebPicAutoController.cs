@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using Badgernet.Umbraco.WebPicAuto.Settings;
+﻿using Badgernet.WebPicAuto.Settings;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Authorization;
 
-namespace Badgernet.Umbraco.WebPicAuto.Controllers
+namespace Badgernet.WebPicAuto.Controllers
 {
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class WebPicAutoController : UmbracoAuthorizedJsonController
