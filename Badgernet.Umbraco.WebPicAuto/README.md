@@ -13,23 +13,28 @@ dotnet add package Badgernet.Umbraco.WebPicAuto
 ```
 
 # Changelog
+#### Version 1.1.1
+- Fix: Adjusted namespace to "Badgernet.WebPicAuto" to prevent conflict.
+- Fix: Removed "WpaSettings.json" from the package.
+- Converter now enabled by default
 
-#### Version 1.1.0
+#### Version 1.1.0 (unlisted)
 - Backoffice dashboard
 
 
-#### Version 1.0.1 
+#### Version 1.0.1
 - Added option to downscale images without keeping aspect ratio
 - Provide target dimensions in filename -> "wparesize_800_600_ImageName.png"
-    
+
 
 # Settings
 You can change these default settings by accessing the "Converter/Resizer" dashboard in the Media section in backoffice.
+Settings are stored in a file: "App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json"
 
 ![image info](./Dash.png)
 
 ## Resizer enabled
-Turns image resizing on or off 
+Turns image resizing on or off
 
 ## Max width
 Resizer will scale images down to fit max width value
@@ -38,13 +43,13 @@ Resizer will scale images down to fit max width value
 Resizer will scale images down to fit max height
 
 ## Ignore aspect ratio
-By default, resizing will maintain image aspect ratio. 
+By default, resizing will maintain image aspect ratio.
 
 ## Converter enabled
 Turns image converting on or off
 
 ## Convert mode
-#### Image encoding type 
+#### Image encoding type
 "Lossy" mode will produce smaller file size images. <- this is the preferred / default mode  \
 "Lossless" mode will produce better quality images.
 
@@ -53,7 +58,7 @@ Turns image converting on or off
 Quality of conversion, lower value will produce smaller file size images but image quality will also be worse.
 
 ### Keep original images
-If turned on, original images will not be deleted (wwwroot/media/***) 
+If turned on, original images will not be deleted (wwwroot/media/***)
 ### Ignore keyword
 Any images containing this keyword in its filename will be ignored by this package. -> "wpaignore_IMG01012024.png" would not get processed.
 

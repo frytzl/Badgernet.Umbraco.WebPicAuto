@@ -14,6 +14,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp.Formats.Webp;
 
+
 namespace Badgernet.WebPicAuto.Handlers
 {
     public class WebPicAutoHandler : INotificationHandler<MediaSavingNotification>

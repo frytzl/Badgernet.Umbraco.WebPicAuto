@@ -1,7 +1,7 @@
-using System.Diagnostics;
+
 using System.Text;
 using System.Text.Json;
-using Umbraco.Cms.Core.Hosting;
+
 
 namespace Badgernet.WebPicAuto.Settings;
 
