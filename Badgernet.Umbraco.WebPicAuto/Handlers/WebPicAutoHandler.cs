@@ -41,6 +41,7 @@ namespace Badgernet.WebPicAuto.Handlers
         }
         public void Handle(MediaSavingNotification notification)
         {
+            
             _settings = _settingsProvider.GetSettings();
             
             bool resizingEnabled = _settings.WpaEnableResizing;
@@ -62,13 +63,15 @@ namespace Badgernet.WebPicAuto.Handlers
 
             foreach(var mediaEntity in notification.SavedEntities)
             {
+                if (mediaEntity == null) continue;
+                if (string.IsNullOrEmpty(mediaEntity.ContentType.Alias) || !mediaEntity.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue; //Skip if not an image 
+                
                 string generatedFileNameSuffix = string.Empty;
                 string originalFilePath = GetMediaPath(mediaEntity);
                 string processedFilePath = CreateNewPath(originalFilePath, out generatedFileNameSuffix);
                 Size originalSize = new();
 
-                if (mediaEntity == null) continue;
-                if (string.IsNullOrEmpty(mediaEntity.ContentType.Alias) || !mediaEntity.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue; //Skip if not an image 
+
                 if (string.IsNullOrEmpty(originalFilePath) || string.IsNullOrEmpty(processedFilePath)) continue; //Skip if paths not good
                 if (mediaEntity.Id > 0) continue; //Skip any not-new images
 
@@ -153,6 +156,7 @@ namespace Badgernet.WebPicAuto.Handlers
                 }
 
                 //Image converting part
+                var wasConverted = false;
                 if(convertingEnabled && !originalFilePath.ToLower().EndsWith(".webp"))
                 {
                     var sourceFilePath = string.Empty;
@@ -167,7 +171,6 @@ namespace Badgernet.WebPicAuto.Handlers
                     {
 
                         TryDeleteFile(tempFilePath);
-
                         var jsonString = mediaEntity.GetValue("umbracoFile");
 
                         if (jsonString != null)
@@ -191,20 +194,20 @@ namespace Badgernet.WebPicAuto.Handlers
 
                             mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
                         }
-
+                
                         FileInfo targetImg = new(processedFilePath);
                         mediaEntity.SetValue("umbracoExtension", "webp");
                         mediaEntity.SetValue("umbracoBytes", targetImg.Length);
+
+                        wasConverted = true;
                     }
                 }  
                 
                 //Deleting original files
-                if(!keepOriginals)
+                if(!keepOriginals && wasResized || wasConverted)
                 {
                     TryDeleteFile(originalFilePath);
                 }
-                
-                
             }
 
             //Write settings to file to preserve saved bytes values   

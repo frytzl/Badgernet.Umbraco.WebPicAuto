@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Badgernet.Umbraco.WebPicAuto" Version="1.1.0" />
     <PackageReference Include="Umbraco.Cms" Version="13.0.3" />
+    <PackageReference Include="uSync" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +18,156 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\media\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\article.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\articlecontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\articlelist.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\articlelistcontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\blockvisibilitycontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\cardblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\cardblocksettings.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\carouselblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\carouselitem.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\codeblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\contactformcontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\content.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\embedblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\error.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\footercontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\footerpersonitem.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\fourcolumnsblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\gridblocktest.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\headercontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\headlineblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\home.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\iconlinkitem.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\imageblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\jumbotronblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\jumbotronblocksettings.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\leftmaincolumnblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\logoimagecontrol.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\mainimagecontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\openstreetmapblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\osmchangesetsblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\osmchangesetstimelineblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\richtextblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\rightmaincolumnblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\search.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\seocontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\threecolumnsblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\twocolumnsblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\verticalspacerblock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\visibilitycontrols.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\ContentTypes\xmlsitemap.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ApprovedColor.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\BlockGridContentBlock.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\BlockListCarouselItems.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\BlockListFooterPersons.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\BlockListSocialLinks.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\CheckboxList.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\CodeEditorCSharp.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ColorPickerPalettePicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ContentPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DataListHeaderSizeSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DatePicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DatePickerWithTime.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DecimalZeroToTwenty.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Dropdown.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownAlignmentSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownCodeLanguage.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropDownCropSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownDarkLightSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownFontAwesomeIcons.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownHeaderSizeSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownMultiple.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\DropdownSlideFadeSelector.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\FooterPersonItemSocialLinksBlockList.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ImageCropper.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ImageMediaPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ImageSizeContentmentBytes.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\JumbotronBlockBackgroundColorEyeDropperColorPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelBigint.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelDatetime.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelDecimal.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelInteger.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelString.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\LabelTime.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ListViewContent.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ListViewMedia.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ListViewMembers.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MapBlockMapGoogleMapsSingleMarker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MediaPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MediaPickerLegacy.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MediaPickerSVGImagePicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MemberPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MultipleImageMediaPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MultipleMediaPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MultipleMediaPickerLegacy.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MultiURLPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\MultiUrlPickerSingleUrlPicker.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\NestedIconList.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Numeric.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Radiobox.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\RichTextBlockTextLimboRTE.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\RichTextBlockTextRichTextEditor.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\RichTextEditorSimpleRichText.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\SliderOneToHundred.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\SliderOneToSixsty.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\SliderOneToThousand.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\SliderZeroToTwenty.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Tags.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Textarea.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\TextEditor.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Textstring.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ToggleOnOffDefaultOFF.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ToggleOnOffDefaultON.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ToggleOpenedClosedDefaultOPENED.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ToggleYesNoDefaultNO.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\ToggleYesNoDefaultYES.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\Truefalse.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\UploadArticle.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\UploadAudio.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\UploadFile.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\UploadVectorGraphics.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\UploadVideo.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\VideoBlockDimensionUnitsToggle.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\DataTypes\VideoBlockLimboYouTubeVideo.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\article.by.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\article.on.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\article.posted.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\articlelist.viewall.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\contactform.email.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\contactform.message.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\contactform.name.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\contactform.send.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\footer.copyrightstatement.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\footer.copyrighttitle.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\navigation.menutitle.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\navigation.sitename.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\paging.next.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\paging.of.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\paging.page.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\paging.previous.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\search.placeholder.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\search.results.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Dictionary\search.searchbutton.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Domains\badgernet.de-en_.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Domains\badgernet.de_.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\Languages\de-de.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\file.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\folder.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\image.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediaarticle.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediaaudio.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediavectorgraphics.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediavideo.config" />
+    <_ContentIncludedByDefault Remove="uSync\v12\MemberTypes\member.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Badgernet.Umbraco.WebPicAuto\Badgernet.Umbraco.WebPicAuto.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

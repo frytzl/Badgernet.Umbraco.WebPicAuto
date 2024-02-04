@@ -6,19 +6,28 @@
 \
 [![NuGet](https://img.shields.io/nuget/dt/Badgernet.Umbraco.WebPicAuto?ImageResizer?label=Downloads&color=green)](https://www.nuget.org/packages/Badgernet.Umbraco.WebPicAuto/)
 
+
 # Installation
 Simply add the package by using dotnet add package to install the latest version:
 ```
 dotnet add package Badgernet.Umbraco.WebPicAuto
 ```
 
+# Important if using uSync
+This package will also process any images imported using the uSync import feature.
+Be sure to turn off the converter / resizer (via the dashboard) if you do not want them to be processed.
+
+
 # Changelog
+#### Version 1.1.2
+- Fix: Plays nice with uSync
+
 #### Version 1.1.1
 - Fix: Adjusted namespace to "Badgernet.WebPicAuto" to prevent conflict.
 - Fix: Removed "WpaSettings.json" from the package.
 - Converter now enabled by default
 
-#### Version 1.1.0 (unlisted)
+#### Version 1.1.0
 - Backoffice dashboard
 
 
