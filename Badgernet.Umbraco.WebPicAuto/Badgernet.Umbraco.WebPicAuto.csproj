@@ -14,7 +14,7 @@
     <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
     <Product>Badgernet.Umbraco.WebPicAuto</Product>
     <Title>WebPicAuto</Title>
-	<Version>1.1.5</Version>
+	<Version>1.1.2</Version>
     <Description>...</Description>
     <PackageTags>umbraco plugin package;umbraco-marketplace;webp; </PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
