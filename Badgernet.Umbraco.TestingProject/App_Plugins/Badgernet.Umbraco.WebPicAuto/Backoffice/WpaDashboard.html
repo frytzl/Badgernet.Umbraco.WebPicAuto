@@ -9,7 +9,9 @@
         
             <uui-table-head style="color: white; background-color: #1b264fff">
                 <uui-table-head-cell >Image processing during upload</uui-table-head-cell>
-                <uui-table-head-cell ></uui-table-head-cell>
+                <uui-table-head-cell >
+                    <uui-button style="float: right;" class="wpaSaveButton" look="primary" color="positive" ng-click="vm.commit()">Save changes</uui-button>
+                </uui-table-head-cell>
             </uui-table-head>
     
             <uui-table-row>
@@ -168,17 +170,50 @@
                     <uui-label class="wpaMutedText">{{vm.sizeSavedConverting}}</uui-label>
                 </uui-table-cell>
             </uui-table-row>
-    
-        </uui-table>
-            <uui-button class="wpaSaveButton" look="primary" ng-click="vm.commit()">Save changes</uui-button>
-        </div>
-        <div class="wpaPanel"></div>
-    </div>
-    
-    
-        
-    
+            </uui-table>
+            
+            
 
+            <uui-table class="wpaTable" style="margin-top:1rem;">
+                <uui-table-column style="width: 50%;"></uui-table-column>
+                <uui-table-column style="width: 50%;"></uui-table-column>
+
+                <uui-table-head style="color: white; background-color: #1b264fff">
+                    <uui-table-head-cell >Process existing images</uui-table-head-cell>
+                    <uui-table-head-cell >
+                        <uui-button style="float: right;" class="wpaSaveButton" look="primary" color="warning" ng-click="vm.checkMedia()">Analyze</uui-button>
+                    </uui-table-head-cell>
+                </uui-table-head>
+
+                <uui-table-row style="background-color: #E7E7E7FF">
+                    <uui-table-cell>
+                        <div ng-if="vm.mediaCheckResults.r !== undefined">
+                            <uui-label style="margin-left: auto; margin-right: auto;">{{vm.mediaCheckResults.r}} images can be sized down.</uui-label>
+                            <uui-label class="wpaMutedText" style="padding-bottom:0.5rem;">Based on your current settings. ( {{vm.settings.wpaTargetWidth}} x {{vm.settings.wpaTargetHeight}} px ) </uui-label>
+                        </div>
+                    </uui-table-cell>
+                    <uui-table-cell>
+                        <div ng-if="vm.mediaCheckResults.c !== undefined">
+                            <uui-label>{{vm.mediaCheckResults.c}} images can be converted to .webp format.</uui-label>
+                        </div>
+                    </uui-table-cell>
+                </uui-table-row>
+                
+                <uui-table-row style="background-color: #E7E7E7FF">
+                    <uui-table-cell>
+                        
+                    </uui-table-cell>
+                    <uui-table-cell>
+                        <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Both</uui-button>
+                        <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Convert all</uui-button>
+                        <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Resize all</uui-button>
+                    </uui-table-cell>
+                </uui-table-row>
+
+
+            </uui-table>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -194,6 +229,7 @@
     }
     .wpaPanel{
         width: 50%;
+        margin: 1rem;
     }
     .wpaTable{
         border-radius: 4px;
@@ -214,6 +250,12 @@
     .wpaSaveButton{
         padding: 1vh;
     }
+    .wpaStackedButton{
+        padding: 0.1rem;
+        min-width: 6rem;
+        float: right;
+    }
+    
     .wpaMutedText{
         display: block;
         font-size: 0.8rem;
