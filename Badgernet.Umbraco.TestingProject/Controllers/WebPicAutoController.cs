@@ -87,7 +87,7 @@ namespace Badgernet.WebPicAuto.Controllers
             var optimizeCandidates = allImages.Where(img =>
                     (img.Width > _currentSettings.WpaTargetWidth || img.Height > _currentSettings.WpaTargetHeight) ||
                     (img.Extension != "webp" && img.Extension != "svg"))
-                    .Select(img => img.Path);
+                    .Select(img => new { path= img.Path, id = img.Id});
 
             var toResizeCount = allImages.Count(img =>
                 img.Width > _currentSettings.WpaTargetWidth || img.Height > _currentSettings.WpaTargetHeight);    

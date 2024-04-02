@@ -1,4 +1,7 @@
 <!--suppress ALL -->
+
+<link rel="stylesheet" href="/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaDashboard.css">
+
 <div class="wpaContainer">
     <div class="wpaDashboard" ng-controller="Badgernet.Umbraco.WebPicAutoController as vm" >
         
@@ -183,29 +186,44 @@
                                         class="wpaSaveButton" look="primary" color="warning" 
                                         ng-click="vm.checkMedia()">Check Media</uui-button>
                         </div>
-                        
-                        <div ng-if="vm.mediaCheckResults != undefined">
-                            <uui-label class="wpaCenteredLabel">Based on your current settings, {{vm.mediaCheckResults.toResizeCount}} images could be downsized</uui-label>
-                            <uui-label class="wpaCenteredLabel">and {{vm.mediaCheckResults.toConvertCount}}can be converted to .webp format. </uui-label>
-                            <div style="margin: 1.5rem;">
-                                <img ng-repeat="imgPath in vm.mediaCheckResults.optimizeCandidates" src="{{imgPath}}?width=40&height=40" />
-                            </div>
 
-                            <uui-button style="display: block; margin-left: auto; margin-right: auto; max-width: 8rem;"
-                                        class="wpaSaveButton" look="primary" color="positive" popovertarget="wpaProcessPopover">Process</uui-button>
-                            <uui-popover-container id="wpaProcessPopover" margin="1" >
-                                <div style="display: block;">
-                                    <uui-label class="wpaCenteredLabel">What do you want to do?</uui-label>
-                                    <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Both</uui-button>
-                                    <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Only Convert</uui-button>
-                                    <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Only Resize</uui-button>
-                                </div>
-                            </uui-popover-container>
+                        <uui-button style="display: block; margin-left: auto; margin-right: auto; max-width: 8rem;"
+                                    class="wpaSaveButton" look="primary" color="positive" popovertarget="wpaProcessPopover">Process</uui-button>
+                        <uui-popover-container id="wpaProcessPopover" margin="1" placement="top" >
+                            <div style="background: #1b264fff; color: white; padding: 0.8rem">
+                                <uui-label class="wpaCenteredLabel">What do you want to do?</uui-label>
+                            </div>
+                            <div style="display: block; padding: 1rem; margin-bottom: 1rem">
+                                
+                                <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Both</uui-button>
+                                <uui-button class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Only Convert</uui-button>
+                                <uui-button style="margin-bottom: 1rem;" class="wpaStackedButton" look="primary" ng-click="vm.getAllImages()">Only Resize</uui-button>
+                            </div>
+                        </uui-popover-container>
+                        
+                        <div ng-if="vm.mediaCheckResults != undefined" style="margin-top: 0.5rem;">
+                            <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toResizeCount}} images can be downsized.</uui-label>
+                            <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toConvertCount}} images can be converted to .webp format. </uui-label>
+                            <uui-label class="wpaCenteredLabel wpaMutedText">Results are shown based on your current settings.</uui-label>
+                            
+                            <a class="wpaCenteredLabel" style="margin-top: 1.5rem" href="" ng-click="selectAllImages()">Select all</a>
+                            <div class="wpaImgContainer">
+                                    <div ng-repeat="img in vm.mediaCheckResults.optimizeCandidates"
+                                         class="wpaSelectableImg"
+                                         width="40"
+                                         height="40"
+                                         style="background: url('{{img.path}}?width=40&height=40')" 
+                                         id="{{img.id}}" 
+                                         onclick="angular.element(this).scope().selectImage(this)">
+                                    </div>
+                            </div>
                             
                         </div>
                     </uui-table-cell>
                 </uui-table-row>
             </uui-table>
+            
+            
             
             <div ng-repeat="path in vm.mediaCheckResults.paths">
                 <p>{{path}}</p>
@@ -215,81 +233,7 @@
     </div>
 </div>
 
-<style>
-    bold{
-        font-weight: bold;
-    }
-    uui-input{
-        display: block;
-    }
-    uui-popover-container{
-        background: white;
-        padding: 10px;
-        border-radius: 5px;
-        overflow: clip;
-        box-shadow: 6px 6px 62px 0px rgba(0,0,0,0.75);
-        -webkit-box-shadow: 6px 6px 62px 0px rgba(0,0,0,0.75);
-        -moz-box-shadow: 6px 6px 62px 0px rgba(0,0,0,0.75);
-    }
-    .wpaContainer{
-        display: flex;
-        flex-direction: column;
-    }
-    .wpaPanel{
-        width: 50%;
-        margin: 1rem;
-    }
-    .wpaTable{
-        border-radius: 4px 4px 0 0;
-        border: 1px #d3d4d4 solid;
-        overflow: clip;
-        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.35);
-        -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.35);
-        -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.35);
-    }
-    .wpaDashboard{
-        display: flex;
-        flex-direction: row;
-    }
-    .wpaNotification{
-        position: absolute;
-        left: 0;
-        right: 0;
-        margin-left: 12%;
-        bottom: 2vh;
-    }
-    .wpaSaveButton{
-        padding: 1vh;
-    }
-    .wpaStackedButton{
-        padding: 0.1rem;
-        min-width: 6rem;
-        float: right;
-    }
-    
-    .wpaCenteredLabel{
-        display: block;
-        text-align: center;
-    }
-    .wpaMutedText{
-        display: block;
-        font-size: 0.8rem;
-        font-style: italic;
-        font-weight: lighter;
-    }
-    
-    .wpaExtraLargeText{
-        font-size: 3rem;
-        padding: 1rem;
-    }
 
-    .wpaSplitterCell{
-        height: 1px;
-        padding: 0px;
-        background-color: #e7e7e7;
-    }
-    
-</style>
 
 
 

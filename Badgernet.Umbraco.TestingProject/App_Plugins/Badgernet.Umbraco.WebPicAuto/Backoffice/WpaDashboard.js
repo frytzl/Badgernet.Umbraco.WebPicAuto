@@ -1,11 +1,31 @@
 function WebPicAutoController($scope, $http, umbRequestHelper) {
     let vm = this;
     let baseApiUrl = "backoffice/Api/WebPicAuto/";
+    let selectedImages = new Set();
+    
+    $scope.testFunc = function(){
+        alert("test test");
+    }
+    
+    $scope.selectImage = function (element){
+        if(!selectedImages.has(element.id)){
+            selectedImages.add(element.id);
+            element.classList.add("wpaSelectedImg");
+
+        }
+        else{
+            selectedImages.delete(element.id);
+            element.classList.remove("wpaSelectedImg");
+        }
+    }
+
+    $scope.selectAllImages = function (){
+        var images = angular.element(element.getElementsByClassName("wpaSelectableImg"));
+        
+    }
+    
 
     function init() {
-
-        //$scope.$watch(function (){ return vm.allImages;},function (){ console.log("collection changed")});
-
         //Retrieves settings from server on load
         umbRequestHelper.resourcePromise($http.get(baseApiUrl + "GetSettings"))
             .then(function (data) {
