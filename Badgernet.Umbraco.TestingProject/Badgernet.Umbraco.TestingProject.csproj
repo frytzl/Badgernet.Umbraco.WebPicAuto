@@ -172,6 +172,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\Checked.png" />
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.html" />
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.js" />
     <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.css" />

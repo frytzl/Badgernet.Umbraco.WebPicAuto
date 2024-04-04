@@ -1,31 +1,65 @@
 function WebPicAutoController($scope, $http, umbRequestHelper) {
     let vm = this;
     let baseApiUrl = "backoffice/Api/WebPicAuto/";
-    let selectedImages = new Set();
-    
-    $scope.testFunc = function(){
-        alert("test test");
-    }
-    
-    $scope.selectImage = function (element){
-        if(!selectedImages.has(element.id)){
-            selectedImages.add(element.id);
-            element.classList.add("wpaSelectedImg");
+    const RESIZE_IMAGES = 1;
+    const CONVERT_IMAGES = 2;
+    const RESIZE_CONVERT_IMAGES = 3;
+
+
+    $scope.selectedImages = new Set();
+    $scope.selectImage = function (element) {
+
+        let overlay = element.children[0];
+
+        if(!$scope.selectedImages.has(element.id)){
+            $scope.selectedImages.add(element.id);
+
+            if(overlay)
+                overlay.classList.add("wpaSelectedImg");
 
         }
         else{
-            selectedImages.delete(element.id);
-            element.classList.remove("wpaSelectedImg");
+            $scope.selectedImages.delete(element.id);
+        
+            if (overlay)
+                overlay.classList.remove("wpaSelectedImg");
         }
     }
 
-    $scope.selectAllImages = function (){
-        var images = angular.element(element.getElementsByClassName("wpaSelectableImg"));
-        
+    $scope.selectAllImages = function () {
+
+        var elements = document.getElementsByClassName("wpaSelectableImg");
+        var btn = document.getElementById("wpaSelectUnselectImages");
+
+        var t = btn.innerHTML;
+
+        //Unselect all images
+        if (t == "Unselect all") {
+
+            $scope.selectedImages.clear();//Remove 
+
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].children[0].classList.remove("wpaSelectedImg");                
+            }
+            btn.innerHTML = "Select all";
+        }
+        //Select all images
+        else if ( t == "Select all")  {
+
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].children[0].classList.add("wpaSelectedImg");
+                if (!$scope.selectedImages.has(elements[i].id)) {
+                    $scope.selectedImages.add(elements[i].id);
+                }
+            }
+            btn.innerHTML = "Unselect all";
+        } 
     }
-    
+
+
 
     function init() {
+
         //Retrieves settings from server on load
         umbRequestHelper.resourcePromise($http.get(baseApiUrl + "GetSettings"))
             .then(function (data) {
@@ -56,6 +90,24 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
                 .then(function (data){
                    vm.mediaCheckResults = JSON.parse(data);
                 });
+        }
+
+        vm.processExistingImages = function (action) {
+
+            switch (action) {
+                case CONVERT_IMAGES:
+                    alert("Convert");
+                    break;
+                case RESIZE_IMAGES:
+                    alert("Resize");
+                    break;
+                case RESIZE_CONVERT_IMAGES:
+                    alert("Both");
+                    break;
+                default:
+                    alert(action);
+            }
+
         }
 
         vm.toggle = function (propName){

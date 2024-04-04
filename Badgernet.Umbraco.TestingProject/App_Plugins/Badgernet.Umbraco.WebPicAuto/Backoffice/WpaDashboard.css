@@ -79,6 +79,7 @@ uui-popover-container{
 }
 
 .wpaSelectableImg{
+    position: relative;
     display: block;
     width: 40px;
     height: 40px;
@@ -87,13 +88,21 @@ uui-popover-container{
     transition: .1s ease;
     backface-visibility: hidden;
 }
+    .wpaSelectableImg:hover {
+        opacity: 0.3;
+    }
 
-.wpaSelectableImg:hover {
-    opacity: 0.3;
+.wpaSelectableImgOverlay {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url("Checked.png");
+    z-index: 10;
+    opacity: 0;
+    transition: .1s ease;
+    backface-visibility: hidden;
 }
 
 .wpaSelectedImg{
-    -webkit-box-shadow:inset 0px 0px 0px 5px #6CFF59FF;
-    -moz-box-shadow:inset 0px 0px 0px 5px #6CFF59FF;
-    box-shadow:inset 0px 0px 0px 5px #6CFF59FF;
+    opacity: 1;
 }
