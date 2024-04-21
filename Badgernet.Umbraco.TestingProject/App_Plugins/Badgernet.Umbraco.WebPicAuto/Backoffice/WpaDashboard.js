@@ -5,8 +5,8 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
     const CONVERT_IMAGES = 2;
     const RESIZE_CONVERT_IMAGES = 3;
 
-
     $scope.selectedImages = new Set();
+
     $scope.selectImage = function (element) {
 
         let overlay = element.children[0];
@@ -56,11 +56,27 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
         } 
     }
 
+    $scope.processExistingImages = function (mode) {
+
+        var imageIds = Array.from($scope.selectedImages);
+
+        if (imageIds.length > 0) {
+
+            umbRequestHelper.resourcePromise($http.post(baseApiUrl + "ProcessExistingImages", { ids: imageIds, mode: mode }))
+                .then(function (responseData) {
+                    alert(responseData);
+                });
+            
+        }
+        else {
+            alert("You need to select some images first.");
+        }
+    }
 
 
     function init() {
 
-        //Retrieves settings from server on load
+        //Retrieves settings from the server on page load
         umbRequestHelper.resourcePromise($http.get(baseApiUrl + "GetSettings"))
             .then(function (data) {
                     vm.settings = JSON.parse(data);
@@ -78,13 +94,8 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
             });
         };
 
-        vm.getAllImages = function (){
-            umbRequestHelper.resourcePromise( $http.get(baseApiUrl + "GetAllImages") )
-                .then(function(data){
-                    vm.allImages = JSON.parse(data);
-                });
-        }
-        
+
+        //Checks and returns all images that can be resized and/or converted
         vm.checkMedia = function (){
             umbRequestHelper.resourcePromise( $http.get(baseApiUrl + "CheckMedia"))
                 .then(function (data){
@@ -92,23 +103,8 @@ function WebPicAutoController($scope, $http, umbRequestHelper) {
                 });
         }
 
-        vm.processExistingImages = function (action) {
 
-            switch (action) {
-                case CONVERT_IMAGES:
-                    alert("Convert");
-                    break;
-                case RESIZE_IMAGES:
-                    alert("Resize");
-                    break;
-                case RESIZE_CONVERT_IMAGES:
-                    alert("Both");
-                    break;
-                default:
-                    alert(action);
-            }
 
-        }
 
         vm.toggle = function (propName){
             let currentValue = vm.settings[propName];

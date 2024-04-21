@@ -5,21 +5,16 @@ using System.Text.Json;
 
 namespace Badgernet.WebPicAuto.Settings;
 
-public interface IWpaSettingsProvider
-{
-    WpaSettings GetSettings();
-    bool PersistToFile(WpaSettings settings);
-}
 
-public class WpaSettingsProvider : IWpaSettingsProvider
+public class WebPicSettingsProvider : IWebPicSettingProvider
 {
     private readonly string _settingsPath;
-    public WpaSettingsProvider(string filePath)
+    public WebPicSettingsProvider(string filePath)
     {
         _settingsPath = filePath;
     } 
     
-    public WpaSettings GetSettings()
+    public WebPicSettings GetFromFile()
     {
         var jsonString = string.Empty;
         var fileLock = new object();
@@ -38,21 +33,21 @@ public class WpaSettingsProvider : IWpaSettingsProvider
             }
         }
         
-        WpaSettings settings;
+        WebPicSettings settings;
         try
         {
-            settings = JsonSerializer.Deserialize<WpaSettings>(jsonString);
+            settings = JsonSerializer.Deserialize<WebPicSettings>(jsonString);
         }
         catch
         {
-            return new WpaSettings(); //Return Defaults 
+            return new WebPicSettings(); //Return Defaults 
         }
         
         return settings;
 
     }
 
-    public bool PersistToFile(WpaSettings settings)
+    public bool PersistToFile(WebPicSettings settings)
     {
         var fileLock = new object();
         var jsonString = JsonSerializer.Serialize(settings);

@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="App_Plugins\Images\" />
     <Folder Include="wwwroot\media\" />
   </ItemGroup>
 

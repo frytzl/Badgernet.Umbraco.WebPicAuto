@@ -219,9 +219,9 @@
                                 </div>
                                 <div style="display: block; padding: 1rem; margin-bottom: 1rem">
 
-                                    <uui-button class="wpaStackedButton" look="primary" ng-click="vm.processExistingImages(3)">Both</uui-button>
-                                    <uui-button class="wpaStackedButton" look="primary" ng-click="vm.processExistingImages(2)">Only Convert</uui-button>
-                                    <uui-button style="margin-bottom: 1rem;" class="wpaStackedButton" look="primary" ng-click="vm.processExistingImages(1)">Only Resize</uui-button>
+                                    <uui-button class="wpaStackedButton" look="primary" ng-click="processExistingImages('ResizeAndConvert')">Both</uui-button>
+                                    <uui-button class="wpaStackedButton" look="primary" ng-click="processExistingImages('OnlyConvert')">Only Convert</uui-button>
+                                    <uui-button style="margin-bottom: 1rem;" class="wpaStackedButton" look="primary" ng-click="processExistingImages('OnlyResize')">Only Resize</uui-button>
                                 </div>
                             </uui-popover-container>
 

@@ -1,4 +1,5 @@
 ﻿using Badgernet.WebPicAuto.Handlers;
+using Badgernet.WebPicAuto.Helpers;
 using Badgernet.WebPicAuto.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
@@ -16,8 +17,9 @@ namespace Badgernet.WebPicAuto.Composers
             {
                 var dir = System.Environment.CurrentDirectory;
                 var settingsPath = dir + "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json"; 
-                return new WpaSettingsProvider(settingsPath);
+                return new WebPicSettingsProvider(settingsPath);
             });
+            builder.Services.AddSingleton<IWebPicHelper, WebPicHelper>();
         }
 
 
