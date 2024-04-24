@@ -11,12 +11,12 @@ namespace Badgernet.WebPicAuto.Composers
     {
         public void Compose(IUmbracoBuilder builder)
         {
-            
+
             builder.AddNotificationHandler<MediaSavingNotification, WebPicAutoHandler>();
-            builder.Services.AddSingleton<IWpaSettingsProvider>(x =>
+            builder.Services.AddSingleton<IWebPicSettingProvider>(x =>
             {
                 var dir = System.Environment.CurrentDirectory;
-                var settingsPath = dir + "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json"; 
+                var settingsPath = dir + "/App_Plugins/Badgernet.Umbraco.WebPicAuto/Backoffice/WpaSettings.json";
                 return new WebPicSettingsProvider(settingsPath);
             });
             builder.Services.AddSingleton<IWebPicHelper, WebPicHelper>();

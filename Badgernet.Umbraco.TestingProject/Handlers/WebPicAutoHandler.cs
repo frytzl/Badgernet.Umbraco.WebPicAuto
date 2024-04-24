@@ -1,40 +1,25 @@
 ﻿using Badgernet.WebPicAuto.Settings;
-using Microsoft.AspNetCore.Hosting;
 using Umbraco.Cms.Core.Events;
-using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
-using Umbraco.Cms.Core.PropertyEditors;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using Image = SixLabors.ImageSharp.Image;
 using Size = SixLabors.ImageSharp.Size;
 using File = System.IO.File;
 using Umbraco.Cms.Core.Scoping;
 using System.Text.Json.Nodes;
-using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp.Formats.Webp;
 using Badgernet.WebPicAuto.Helpers;
 
 
 namespace Badgernet.WebPicAuto.Handlers
 {
-    public class WebPicAutoHandler : INotificationHandler<MediaSavingNotification>
+    public class WebPicAutoHandler(IWebPicSettingProvider wpaSettingsProvider,
+                                   IWebPicHelper webPicHelper,
+                                   ICoreScopeProvider scopeProvider,
+                                   ILogger<WebPicAutoHandler> logger) : INotificationHandler<MediaSavingNotification>
     {
-        private readonly IWpaSettingsProvider _settingsProvider;
-        private readonly IWebPicHelper _webPicHelper;
-        private readonly ICoreScopeProvider _scopeProvider;
-        private readonly ILogger<WebPicAutoHandler> _logger;
-        
-        public WebPicAutoHandler(IWpaSettingsProvider wpaSettingsProvider,
-                                 IWebPicHelper webPicHelper,
-                                 ICoreScopeProvider scopeProvider,
-                                 ILogger<WebPicAutoHandler> logger)
-        {
-            _settingsProvider = wpaSettingsProvider;
-            _scopeProvider = scopeProvider;
-            _webPicHelper = webPicHelper;
-            _logger = logger;
-        }
+        private readonly IWebPicSettingProvider _settingsProvider = wpaSettingsProvider;
+        private readonly IWebPicHelper _mediaHelper = webPicHelper;
+        private readonly ICoreScopeProvider _scopeProvider = scopeProvider;
+        private readonly ILogger<WebPicAutoHandler> _logger = logger;
+
         public void Handle(MediaSavingNotification notification)
         {
             var wpaSettings = _settingsProvider.GetFromFile();
@@ -56,26 +41,31 @@ namespace Badgernet.WebPicAuto.Handlers
             if (convertQuality > 100) convertQuality = 100;
 
 
-            foreach(var mediaEntity in notification.SavedEntities)
+            foreach(var media in notification.SavedEntities)
             {
-                if (mediaEntity == null) continue;
-                if (string.IsNullOrEmpty(mediaEntity.ContentType.Alias) || !mediaEntity.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue; //Skip if not an image 
+                if (media == null) continue;
+
+                //Skip if not an image
+                if (string.IsNullOrEmpty(media.ContentType.Alias) || !media.ContentType.Alias.Equals("image", StringComparison.CurrentCultureIgnoreCase)) continue;  
                 
-                string generatedFileNameSuffix = string.Empty;
-                string originalFilePath = _webPicHelper.GetMediaPath(mediaEntity);
-                string processedFilePath = CreateNewPath(originalFilePath, out generatedFileNameSuffix);
+                
+                string originalFilepath = _mediaHelper.GetFullPath(media);
+                string alternativeFilepath = _mediaHelper.GenerateAlternativePath(media);
                 Size originalSize = new();
 
+                //Skip if paths not good
+                if (string.IsNullOrEmpty(originalFilepath) || string.IsNullOrEmpty(alternativeFilepath)) continue;
 
-                if (string.IsNullOrEmpty(originalFilePath) || string.IsNullOrEmpty(processedFilePath)) continue; //Skip if paths not good
-                if (mediaEntity.Id > 0) continue; //Skip any not-new images
+                //Skip any not-new images
+                if (media.Id > 0) continue;
 
-                if (Path.GetFileNameWithoutExtension(originalFilePath).Contains(ignoreKeyword,StringComparison.CurrentCultureIgnoreCase)) 
+                //Skip if image name contains "ignoreKeyword"
+                if (Path.GetFileNameWithoutExtension(originalFilepath).Contains(ignoreKeyword,StringComparison.CurrentCultureIgnoreCase)) 
                 {
-                    processedFilePath = originalFilePath.Replace(ignoreKeyword, string.Empty);
-                    File.Move(originalFilePath, processedFilePath, true);
+                    alternativeFilepath = originalFilepath.Replace(ignoreKeyword, string.Empty);
+                    File.Move(originalFilepath, alternativeFilepath, true);
 
-                    var jsonString = mediaEntity.GetValue<string>("umbracoFile");
+                    var jsonString = media.GetValue<string>("umbracoFile");
 
                     if (jsonString == null) continue;
 
@@ -85,10 +75,10 @@ namespace Badgernet.WebPicAuto.Handlers
 
                     propNode["src"] = path;
 
-                    mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
-                    if(mediaEntity.Name != null)
+                    media.SetValue("umbracoFile", propNode.ToJsonString());
+                    if(media.Name != null)
                     {
-                        mediaEntity.Name = mediaEntity.Name.Replace(ignoreKeyword, string.Empty,StringComparison.CurrentCultureIgnoreCase);
+                        media.Name = media.Name.Replace(ignoreKeyword, string.Empty,StringComparison.CurrentCultureIgnoreCase);
                     }
 
                     continue;
@@ -99,14 +89,8 @@ namespace Badgernet.WebPicAuto.Handlers
 
                 try
                 {
-                    var widthValue = mediaEntity.GetValue<string>("umbracoWidth");
-                    var heightValue = mediaEntity.GetValue<string>("umbracoHeight");
-
-                    if (widthValue != null && heightValue != null)
-                    {
-                        originalSize.Width = int.Parse(widthValue);
-                        originalSize.Height = int.Parse(heightValue);
-                    }
+                    originalSize.Width = int.Parse(media.GetValue<string>("umbracoWidth")!);
+                    originalSize.Height = int.Parse(media.GetValue<string>("umbracoHeight")!);
                 }
                 catch
                 {
@@ -114,7 +98,7 @@ namespace Badgernet.WebPicAuto.Handlers
                 }
 
                 //Override appsettings targetSize if provided in image filename
-                var parsedTargetSize = GetTargetFromFileName(Path.GetFileNameWithoutExtension(originalFilePath));
+                var parsedTargetSize = ParseSizeFromFilename(Path.GetFileNameWithoutExtension(originalFilepath));
                 if(parsedTargetSize != null)
                 {
                     targetWidth = parsedTargetSize.Value.Width;
@@ -122,126 +106,95 @@ namespace Badgernet.WebPicAuto.Handlers
                 }
 
                 //Image resizing part
-                var wasResized = false;
+                var wasResizedFlag = false;
                 var needsResizing = originalSize.Width > targetWidth || originalSize.Height > targetHeight;
                 if(needsResizing && resizingEnabled)
                 {
-                    var newSize = _webPicHelper.ResizeImageFile(originalFilePath, processedFilePath, new Size(targetWidth, targetHeight), ignoreAspectRatio);
+                    var newSize = _mediaHelper.ResizeImageFile(originalFilepath, alternativeFilepath, new Size(targetWidth, targetHeight), ignoreAspectRatio);
 
                     if(newSize != null)
                     {
                         //Calculate file size difference
-                        var bytesSaved = _webPicHelper.FileSizeDiff(originalFilePath, processedFilePath);
+                        var bytesSaved = _mediaHelper.FileSizeDiff(originalFilepath, alternativeFilepath);
                         wpaSettings.WpaBytesSavedResizing += bytesSaved;
                         wpaSettings.WpaResizerCounter++;
 
+                        //Adjust media properties
+                        var newFilename = Path.GetFileName(alternativeFilepath);
+                        _mediaHelper.ChangeFilename(media, newFilename);
+                        media.SetValue("umbracoWidth", newSize.Value.Width);
+                        media.SetValue("umbracoHeight", newSize.Value.Height);
 
-                        var imagePathJson = mediaEntity.GetValue<string>("umbracoFile");
-                        if (imagePathJson != null)
-                        {
-                            for (int i = imagePathJson.Length - 1; i >= 0; i--)
-                            {
-                                if (imagePathJson[i] == '.')
-                                {
-                                    imagePathJson = imagePathJson.Insert(i, generatedFileNameSuffix);
-                                    break;
-                                }
-                            }
-                            mediaEntity.SetValue("umbracoFile", imagePathJson);
-                        }
+                        //Save new file size
+                        FileInfo targetImg = new(alternativeFilepath);
+                        media.SetValue("umbracoBytes", targetImg.Length);
 
-                        mediaEntity.SetValue("umbracoWidth", newSize.Value.Width);
-                        mediaEntity.SetValue("umbracoHeight", newSize.Value.Height);
-
-                        wasResized = true;
+                        wasResizedFlag = true;
                     }
                 }
 
                 //Image converting part
-                var wasConverted = false;
-                if(convertingEnabled && !originalFilePath.ToLower().EndsWith(".webp"))
+                var wasConvertedFlag = false;
+                if(convertingEnabled && !originalFilepath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
                 {
                     var sourceFilePath = string.Empty;
-                    var tempFilePath = string.Empty;
+                    var toDeletePath = string.Empty;
 
-                    sourceFilePath = wasResized ? processedFilePath : originalFilePath;
+                    sourceFilePath = wasResizedFlag ? alternativeFilepath : originalFilepath;
 
-                    tempFilePath = processedFilePath;
-                    processedFilePath = Path.ChangeExtension(processedFilePath, ".webp");
+                    toDeletePath = alternativeFilepath;
+                    alternativeFilepath = Path.ChangeExtension(alternativeFilepath, ".webp");
 
-                    if(_webPicHelper.ConvertImageFile(sourceFilePath, processedFilePath, convertMode, convertQuality))
+                    if(_mediaHelper.ConvertImageFile(sourceFilePath, alternativeFilepath, convertMode, convertQuality))
                     {
+                        //Calculate file size difference
+                        var bytesSaved = _mediaHelper.FileSizeDiff(sourceFilePath, alternativeFilepath);
+                        wpaSettings.WpaBytesSavedConverting += bytesSaved;
+                        wpaSettings.WpaConverterCounter++;
 
-                        TryDeleteFile(tempFilePath);
-                        var jsonString = mediaEntity.GetValue("umbracoFile");
 
-                        if (jsonString != null)
+                        TryDeleteFile(toDeletePath);
+
+                        //Adjust medias src property
+                        if(!wasResizedFlag)
                         {
-                            var propNode = JsonNode.Parse((string)jsonString);
-                            var path = propNode!["src"]!.GetValue<string>();
+                            var newFilename = Path.GetFileNameWithoutExtension(alternativeFilepath);
 
-                            if(!wasResized)
-                            {
-                                var dirPath = Path.GetDirectoryName(path);
-                                var fileName = Path.GetFileNameWithoutExtension(path);
-                                fileName += generatedFileNameSuffix + ".webp";
-                                fileName = Path.Combine(dirPath, fileName);
-                                fileName = fileName.Replace('\\', '/');
-                                propNode["src"] = fileName;
-                            }
-                            else
-                            {
-                                propNode["src"] = Path.ChangeExtension(path, ".webp");
-                            }
-
-                            mediaEntity.SetValue("umbracoFile", propNode.ToJsonString());
+                            _mediaHelper.ChangeFilename(media, newFilename);
+                            _mediaHelper.ChangeExtention(media, ".webp");
                         }
-                
-                        FileInfo targetImg = new(processedFilePath);
-                        mediaEntity.SetValue("umbracoExtension", "webp");
-                        mediaEntity.SetValue("umbracoBytes", targetImg.Length);
+                        else
+                        {
+                            _mediaHelper.ChangeExtention(media, ".webp");
+                        }
 
-                        wasConverted = true;
+                        //Save new file size
+                        FileInfo targetImg = new(alternativeFilepath);
+                        media.SetValue("umbracoBytes", targetImg.Length);
+                        media.SetValue("umbracoExtension", "webp");
+                        
+                        wasConvertedFlag = true;
                     }
                 }
-                
+
                 //Deleting original files
-                if(!keepOriginals && wasResized || wasConverted)
+                if (!keepOriginals && wasResizedFlag || wasConvertedFlag)
                 {
-                    TryDeleteFile(originalFilePath);
+                    TryDeleteFile(originalFilepath);
                 }
             }
 
             //Write settings to file to preserve saved bytes values   
             _settingsProvider.PersistToFile(wpaSettings);
         }
-  
-        private static string CreateNewPath(string filePath, out string generatedSuffix)
-        {
-            string newPath;
 
-            var retry = 1;
-            FileInfo fileInfo = new(filePath);
-            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.Name);
-
-            do
-            {
-                generatedSuffix = $"_processed_{retry}";
-                newPath = $"{fileInfo.DirectoryName}\\{fileNameWithoutExtension}{generatedSuffix}{fileInfo.Extension}";
-                retry++;
-            }
-            while (File.Exists(newPath));
-
-            //Return cleaned up path 
-            return newPath.Replace("\\", "/");
-        }
         private bool TryDeleteFile(string fileName)
         {
             try
             {
                 if (File.Exists(fileName))
                 {
-                    File.Delete(fileName); 
+                    File.Delete(fileName);
                 }
 
                 return true;
@@ -252,7 +205,8 @@ namespace Badgernet.WebPicAuto.Handlers
                 return false;
             }
         }
-        private Size? GetTargetFromFileName(string fileName)
+
+        private Size? ParseSizeFromFilename(string fileName)
         {
             if (!fileName.StartsWith("wparesize_")) return null;
             if (fileName.Length < 11) return null;

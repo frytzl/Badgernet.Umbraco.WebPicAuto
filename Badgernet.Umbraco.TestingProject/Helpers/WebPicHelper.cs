@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.Services;
 using File = System.IO.File;
 using uSync.Core;
 using SixLabors.ImageSharp.Processing;
+using System.Text.Json.Nodes;
 
 namespace Badgernet.WebPicAuto.Helpers
 {
@@ -15,9 +16,9 @@ namespace Badgernet.WebPicAuto.Helpers
         private readonly MediaUrlGeneratorCollection _mediaUrlGeneratorCollection;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IMediaService _mediaService;
-        private readonly ILogger _logger;
+        private readonly ILogger<WebPicHelper> _logger;
 
-        public WebPicHelper (IWebHostEnvironment hostEnvironment, MediaUrlGeneratorCollection mediaUrlGeneratorCollection, IMediaService mediaService, ILogger logger)
+        public WebPicHelper (IWebHostEnvironment hostEnvironment, MediaUrlGeneratorCollection mediaUrlGeneratorCollection, IMediaService mediaService, ILogger<WebPicHelper> logger)
         {
             _hostEnvironment = hostEnvironment;
             _mediaUrlGeneratorCollection = mediaUrlGeneratorCollection;
@@ -27,13 +28,11 @@ namespace Badgernet.WebPicAuto.Helpers
 
         public IMedia? GetMediaById(int id)
         {
-            
             return _mediaService.GetById(id);
-
         }
 
         //Returns path of the Image file 
-        public string GetMediaPath(IMedia media)
+        public string GetFullPath(IMedia media)
         {
             var mediaPath = media.GetUrl("umbracoFile", _mediaUrlGeneratorCollection);
             var webRootPath = _hostEnvironment.WebRootPath.Replace("\\", "/");
@@ -43,12 +42,41 @@ namespace Badgernet.WebPicAuto.Helpers
             return webRootPath + mediaPath;
         }
 
-        public object? GetPropertyValue(IMedia media, string propName)
+        public void ChangeExtention(IMedia media, string extention)
+        {
+            var umbracoFileJson = media.GetValue("umbracoFile");
+            if (umbracoFileJson != null)
+            {
+                var umbracoFile = JsonNode.Parse((string)umbracoFileJson);
+                var srcProp = umbracoFile!["src"]!.GetValue<string>();
+                umbracoFile["src"] = Path.ChangeExtension(srcProp, ".webp");
+                media.SetValue("umbracoFile", umbracoFile.ToJsonString());
+            }
+        }
+
+        public void ChangeFilename(IMedia media, string filename)
+        {
+            var umbracoFileJson = media.GetValue("umbracoFile");
+            if (umbracoFileJson != null)
+            {
+                var umbracoFile = JsonNode.Parse((string)umbracoFileJson);
+                var srcProp = umbracoFile!["src"]!.GetValue<string>();
+                var directory = Path.GetDirectoryName(srcProp)!;
+                var path = Path.Combine(directory, filename);
+                path = path.Replace('\\', '/');
+                umbracoFile["src"] = path;
+
+                media.SetValue("umbracoFile", umbracoFile.ToJsonString());
+            }
+        }
+
+
+        public object? GetValue(IMedia media, string propName)
         {
             return media.GetValue<object>(propName);
         }
 
-        public void SetPropertyValue(IMedia media, string propName, object value)
+        public void SetValue(IMedia media, string propName, object value)
         {
             media.SetValue(propName, value);
         }
@@ -163,5 +191,30 @@ namespace Badgernet.WebPicAuto.Helpers
             }
             return new Size(newWidth, newHeight);
         }
+
+        //Generates availiable path in the same directory
+        public string GenerateAlternativePath(IMedia media)
+        {
+            string originalPath = GetFullPath(media);
+            string generatedSuffix = string.Empty; 
+            string newPath;
+
+            var retry = 1;
+            FileInfo fileInfo = new(originalPath);
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.Name);
+
+            do
+            {
+                generatedSuffix = $"_wpa_{retry}";
+                newPath = $"{fileInfo.DirectoryName}\\{fileNameWithoutExtension}{generatedSuffix}{fileInfo.Extension}";
+                retry++;
+            }
+            while (File.Exists(newPath) || File.Exists(Path.ChangeExtension(newPath,"webp")));
+
+            //Return cleaned up path 
+            return newPath.Replace("\\", "/");
+        }
+
+
     }
 }

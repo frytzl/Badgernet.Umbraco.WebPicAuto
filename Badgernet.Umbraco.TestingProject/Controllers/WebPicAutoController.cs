@@ -113,23 +113,32 @@ namespace Badgernet.WebPicAuto.Controllers
             foreach (var id in imageIds)
             {
 
-                var image = _mediaHelper.GetMediaById(id);
-                if (image == null)
+                var media = _mediaHelper.GetMediaById(id);
+                if (media == null)
                 {
                     _logger.LogError($"Could not find media with id: {id}");
                     continue;
                 }
 
-                var imagePath = _mediaHelper.GetMediaPath(image);
+                var imagePath = _mediaHelper.GetFullPath(media);
                
 
                 switch (processMode)
                 {
                     case "OnlyConvert":
-                        if(_mediaHelper.ConvertImageFile(imagePath, //imagePath, wpaSettings.WpaConvertMode, wpaSettings.WpaConvertQuality))
+                        if(imagePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
                         {
-                            return "We did some converting.";
+                            var newPath = _mediaHelper.GenerateAlternativePath(media);
+                            if (_mediaHelper.ConvertImageFile(imagePath, newPath, wpaSettings.WpaConvertMode, wpaSettings.WpaConvertQuality))
+                            {
+                                return "We did some converting.";
+                            }
                         }
+                        else
+                        {
+                            continue;
+                        }
+
 
                         return "Something went wrong";
 
