@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SixLabors.ImageSharp;
 using System.Runtime;
+using System.Text.Json;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
@@ -17,14 +18,14 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common;
 using Umbraco.Cms.Web.Common.Authorization;
-using uSync.Core;
+
+
 
 namespace Badgernet.WebPicAuto.Controllers
 {
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
     public class WebPicAutoController : UmbracoAuthorizedJsonController
     {
-
 
         private readonly IWebPicHelper _mediaHelper;
         private readonly IWebPicSettingProvider _settingsProvider;
@@ -45,39 +46,46 @@ namespace Badgernet.WebPicAuto.Controllers
 
         }
 
-        public string GetSettings()
+
+        public ActionResult<WebPicSettings> GetSettings()
         {
             _currentSettings ??= _settingsProvider.GetFromFile();
-            return JsonConvert.SerializeObject(_currentSettings);
+            _currentSettings ??= new WebPicSettings();//Create default settings
+
+            return _currentSettings;
         }
 
-        public string SetSettings(JObject settingsJson)
+        public IActionResult SetSettings([FromBody] WebPicSettings settings)
         {
+            if (settings == null) return BadRequest(new { message = "Bad Request" });
+
             try
             {
-                _currentSettings = settingsJson.ToObject<WebPicSettings>();
-                _settingsProvider.PersistToFile(_currentSettings!);
-                
-                return "Settings were saved.";
+                _settingsProvider.PersistToFile(settings);
+                return Ok(new { message = "Settings were saved." });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError("Error when saving wpa settings: {0}", e.Message);
-                return "Something went wrong, check logs.";
+                throw;
             }
         }
 
-        public string CheckMedia()
+        public ActionResult<dynamic> CheckMedia()
         {
             var allImages = GetAllImages();
-            if (allImages == null) return string.Empty;
+            if (allImages == null)
+            {
+                _logger.LogWarning("No existing images found");
+                return NoContent();
+            }
 
             _currentSettings ??= _settingsProvider.GetFromFile();
 
             var optimizeCandidates = allImages.Where(img =>
                     (img.Width > _currentSettings.WpaTargetWidth || img.Height > _currentSettings.WpaTargetHeight) ||
                     (img.Extension != "webp" && img.Extension != "svg"))
-                    .Select(img => new { path = img.Path, id = img.Id });
+                    .Select(img => new { id = img.Id, path = img.Path, size = $"{img.Width}x{img.Height}", extension = img.Extension });
 
             var toResizeCount = allImages.Count(img =>
                 img.Width > _currentSettings.WpaTargetWidth || img.Height > _currentSettings.WpaTargetHeight);
@@ -92,72 +100,143 @@ namespace Badgernet.WebPicAuto.Controllers
                 optimizeCandidates = optimizeCandidates
             };
 
-            return JsonConvert.SerializeObject(result);
+            return Ok(result);
         }
 
         [HttpPost]
         public string ProcessExistingImages(JObject requestJson)
         {
-
             if (requestJson == null) return "No data recieved";
-            if (!requestJson.ContainsKey("ids") || !requestJson.ContainsKey("mode")) return "Bad Request";
+            if (!requestJson.ContainsKey("ids") || !requestJson.ContainsKey("resize") || !requestJson.ContainsKey("convert")) return "Bad Request";
 
-            var imageIds = requestJson.Value<int[]>("ids");
-            var processMode = requestJson.Value<string>("mode");
-
-            if (imageIds == null || imageIds.Length == 0) return "You have to select some images first";
+            var imageIds = requestJson.Value<JArray>("ids");
+            var resize = requestJson.Value<bool>("resize");
+            var convert = requestJson.Value<bool>("convert");
 
             //Read current WebPic Settings from file. 
             var wpaSettings = _settingsProvider.GetFromFile();
+            var targetWidth = wpaSettings.WpaTargetWidth;
+            var targetHeight = wpaSettings.WpaTargetHeight;
 
-            foreach (var id in imageIds)
+            if (imageIds == null || !imageIds.Any()) return "Need to select atleast one image first";
+
+            foreach (var idToken in imageIds)
             {
-
-                var media = _mediaHelper.GetMediaById(id);
+                var imageId = idToken.Value<int>();
+                var media = _mediaHelper.GetMediaById(imageId);
                 if (media == null)
                 {
-                    _logger.LogError($"Could not find media with id: {id}");
+                    _logger.LogError($"Could not find media with id: {imageId}");
                     continue;
                 }
 
                 var imagePath = _mediaHelper.GetFullPath(media);
-               
 
-                switch (processMode)
+                var originalSize = new Size();
+                try
                 {
-                    case "OnlyConvert":
-                        if(imagePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
+                    originalSize.Width = int.Parse(media.GetValue<string>("umbracoWidth")!);
+                    originalSize.Height = int.Parse(media.GetValue<string>("umbracoHeight")!);
+                }
+                catch
+                {
+                    _logger.LogError($"Could not read media size: {imageId}");
+                    continue; //Skip if dimensions cannot be parsed 
+                }
+
+                var newPath = _mediaHelper.GenerateAlternativePath(media);
+                var newFilename = Path.GetFileName(newPath);
+
+
+                try
+                {
+                    if (resize)
+                    {
+                        if (originalSize.Width > targetWidth || originalSize.Height > targetHeight)
                         {
-                            var newPath = _mediaHelper.GenerateAlternativePath(media);
-                            if (_mediaHelper.ConvertImageFile(imagePath, newPath, wpaSettings.WpaConvertMode, wpaSettings.WpaConvertQuality))
+                            var newSize = _mediaHelper.ResizeImageFile(imagePath, newPath, new Size(targetWidth, targetHeight), wpaSettings.WpaIgnoreAspectRatio);
+                            if (newSize != null)
                             {
-                                return "We did some converting.";
+                                //Save size difference stats
+                                var bytesSaved = _mediaHelper.FileSizeDiff(imagePath, newPath);
+                                wpaSettings.WpaBytesSavedResizing += bytesSaved;
+                                wpaSettings.WpaResizerCounter++;
+
+                                _mediaHelper.ChangeFilename(media, newFilename);
+
+                                //Get new file size
+                                FileInfo newFile = new(newPath);
+                                media.SetValue("umbracoBytes", newFile.Length);
+
+                                //Delete original image
+                                if (!wpaSettings.WpaKeepOriginals)
+                                {
+                                    DeleteFile(imagePath);
+                                }
+
+                                imagePath = newPath;
+                            }
+                            else
+                            {
+                                _logger.LogError($"Failed to resize image with id: {media.Id}");
                             }
                         }
                         else
                         {
-                            continue;
+                            _logger.LogInformation($"Image with id: {media.Id} does not need resizing.");
                         }
+                    }
 
+                    if (convert)
+                    {
+                        if (!imagePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) && !imagePath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                        {
+                            newPath = Path.ChangeExtension(newPath, ".webp");
 
-                        return "Something went wrong";
+                            if (_mediaHelper.ConvertImageFile(imagePath, newPath, wpaSettings.WpaConvertMode, wpaSettings.WpaConvertQuality))
+                            {
+                                //Calculate file size difference
+                                var bytesSaved = _mediaHelper.FileSizeDiff(imagePath, newPath);
+                                wpaSettings.WpaBytesSavedConverting += bytesSaved;
+                                wpaSettings.WpaConverterCounter++;
 
-                    case "OnlyResize":
-                        return "We did some resizing.";
+                                _mediaHelper.ChangeFilename(media, newFilename);
+                                _mediaHelper.ChangeExtention(media, ".webp");
 
-                    case "ResizeAndConvert":
-                        return "We did some work.";
+                                //Get new file size
+                                FileInfo newImageFile = new(newPath);
+                                media.SetValue("umbracoBytes", newImageFile.Length);
 
-                    default:
-                        return $"Dont know what to do with mode: {processMode}";
+                                //Delete original image
+                                if (!wpaSettings.WpaKeepOriginals)
+                                {
+                                    DeleteFile(imagePath);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogError($"Error converting media with id: {imageId}");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Image with id: {imageId} does not need converting.");
+                        }
+                    }
+
+                    _settingsProvider.PersistToFile(wpaSettings);
+                    _mediaHelper.SaveMedia(media);
                 }
-
-                
+                catch (Exception ex)
+                {
+                    _logger.LogError($"There was a problem processing image: {ex.Message}");
+                    return "Error processing image";
+                }
 
             }
 
-            return "All done.";
-        } 
+            return "Sucess";
+        }
 
         private IEnumerable<ImageInfo>? GetAllImages()
         {
@@ -182,16 +261,25 @@ namespace Badgernet.WebPicAuto.Controllers
 
             return images;
         }
-        
+
+        private void DeleteFile(string path)
+        {
+            if (System.IO.File.Exists(path))
+            {
+                try
+                {
+                    System.IO.File.Delete(path);
+                }
+                catch 
+                {
+                    _logger.LogError($"Could not delete file: {path}");
+                }
+
+            }
+        }
 
     }
 
-
-    public class ImageSelection
-    {
-        public int[] Ids { get; set; }
-        public string Mode { get; set; }
-    }
     public class ImageInfo()
     {
         public int Id { get; init; }

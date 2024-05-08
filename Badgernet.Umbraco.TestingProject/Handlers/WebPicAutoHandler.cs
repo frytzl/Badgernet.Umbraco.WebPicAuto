@@ -6,6 +6,7 @@ using File = System.IO.File;
 using Umbraco.Cms.Core.Scoping;
 using System.Text.Json.Nodes;
 using Badgernet.WebPicAuto.Helpers;
+using Microsoft.Extensions.Logging;
 
 
 namespace Badgernet.WebPicAuto.Handlers
@@ -171,8 +172,7 @@ namespace Badgernet.WebPicAuto.Handlers
                         //Save new file size
                         FileInfo targetImg = new(alternativeFilepath);
                         media.SetValue("umbracoBytes", targetImg.Length);
-                        media.SetValue("umbracoExtension", "webp");
-                        
+
                         wasConvertedFlag = true;
                     }
                 }

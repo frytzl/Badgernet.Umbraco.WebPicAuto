@@ -34,6 +34,7 @@ public class WebPicSettingsProvider : IWebPicSettingProvider
         }
         
         WebPicSettings settings;
+
         try
         {
             settings = JsonSerializer.Deserialize<WebPicSettings>(jsonString);

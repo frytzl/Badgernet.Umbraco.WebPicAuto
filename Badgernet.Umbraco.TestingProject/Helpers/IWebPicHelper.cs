@@ -8,7 +8,9 @@ namespace Badgernet.WebPicAuto.Helpers
 {
     public interface IWebPicHelper
     {
+        
         IMedia? GetMediaById(int id);
+        void SaveMedia(IMedia media);
         string GetFullPath(IMedia media);
         object? GetValue(IMedia media, string propName);
         void SetValue(IMedia media, string propName, object value);

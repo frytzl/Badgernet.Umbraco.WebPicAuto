@@ -167,16 +167,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Badgernet.Umbraco.WebPicAuto\Badgernet.Umbraco.WebPicAuto.csproj" />
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\Checked.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\en-US.xml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\package.manifest">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\Checked.png" />
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.html" />
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.js" />
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.css" />
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\en-US.xml" />
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\package.manifest" />
+    <ProjectReference Include="..\Badgernet.Umbraco.WebPicAuto\Badgernet.Umbraco.WebPicAuto.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

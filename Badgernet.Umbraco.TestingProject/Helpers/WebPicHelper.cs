@@ -5,9 +5,12 @@ using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Services;
 using File = System.IO.File;
-using uSync.Core;
 using SixLabors.ImageSharp.Processing;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Umbraco.Cms.Core.Configuration.Models;
 
 namespace Badgernet.WebPicAuto.Helpers
 {
@@ -18,12 +21,14 @@ namespace Badgernet.WebPicAuto.Helpers
         private readonly IMediaService _mediaService;
         private readonly ILogger<WebPicHelper> _logger;
 
+
         public WebPicHelper (IWebHostEnvironment hostEnvironment, MediaUrlGeneratorCollection mediaUrlGeneratorCollection, IMediaService mediaService, ILogger<WebPicHelper> logger)
         {
             _hostEnvironment = hostEnvironment;
             _mediaUrlGeneratorCollection = mediaUrlGeneratorCollection;
             _mediaService = mediaService;
             _logger = logger;
+
         }
 
         public IMedia? GetMediaById(int id)
@@ -36,7 +41,6 @@ namespace Badgernet.WebPicAuto.Helpers
         {
             var mediaPath = media.GetUrl("umbracoFile", _mediaUrlGeneratorCollection);
             var webRootPath = _hostEnvironment.WebRootPath.Replace("\\", "/");
-
             if (string.IsNullOrEmpty(mediaPath) || string.IsNullOrEmpty(webRootPath)) return string.Empty;
 
             return webRootPath + mediaPath;
@@ -49,8 +53,9 @@ namespace Badgernet.WebPicAuto.Helpers
             {
                 var umbracoFile = JsonNode.Parse((string)umbracoFileJson);
                 var srcProp = umbracoFile!["src"]!.GetValue<string>();
-                umbracoFile["src"] = Path.ChangeExtension(srcProp, ".webp");
+                umbracoFile["src"] = Path.ChangeExtension(srcProp, extention);
                 media.SetValue("umbracoFile", umbracoFile.ToJsonString());
+                media.SetValue("umbracoExtension", extention);
             }
         }
 
@@ -69,7 +74,6 @@ namespace Badgernet.WebPicAuto.Helpers
                 media.SetValue("umbracoFile", umbracoFile.ToJsonString());
             }
         }
-
 
         public object? GetValue(IMedia media, string propName)
         {
@@ -196,18 +200,15 @@ namespace Badgernet.WebPicAuto.Helpers
         public string GenerateAlternativePath(IMedia media)
         {
             string originalPath = GetFullPath(media);
-            string generatedSuffix = string.Empty; 
+            
             string newPath;
 
-            var retry = 1;
             FileInfo fileInfo = new(originalPath);
-            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.Name);
 
             do
             {
-                generatedSuffix = $"_wpa_{retry}";
-                newPath = $"{fileInfo.DirectoryName}\\{fileNameWithoutExtension}{generatedSuffix}{fileInfo.Extension}";
-                retry++;
+                var newFilename = NewUniqueName();
+                newPath = $"{fileInfo.DirectoryName}\\{newFilename}{fileInfo.Extension}";
             }
             while (File.Exists(newPath) || File.Exists(Path.ChangeExtension(newPath,"webp")));
 
@@ -215,6 +216,14 @@ namespace Badgernet.WebPicAuto.Helpers
             return newPath.Replace("\\", "/");
         }
 
+        public void SaveMedia(IMedia media)
+        {
+            _mediaService.Save(media);
+        }
 
+        private string NewUniqueName()
+        {
+            return Guid.NewGuid().ToString().Replace("-", "");
+        }
     }
 }
