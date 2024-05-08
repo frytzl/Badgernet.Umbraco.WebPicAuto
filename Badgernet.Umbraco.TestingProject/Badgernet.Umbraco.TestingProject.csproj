@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="13.0.3" />
-    <PackageReference Include="uSync" Version="13.0.1" />
+    <PackageReference Include="Umbraco.Cms" Version="13.2.2" />
+    <PackageReference Include="uSync" Version="13.1.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -164,6 +164,33 @@
     <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediavectorgraphics.config" />
     <_ContentIncludedByDefault Remove="uSync\v12\MediaTypes\umbracomediavideo.config" />
     <_ContentIncludedByDefault Remove="uSync\v12\MemberTypes\member.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\Checked.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\WpaDashboard.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\en-US.xml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\package.manifest">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

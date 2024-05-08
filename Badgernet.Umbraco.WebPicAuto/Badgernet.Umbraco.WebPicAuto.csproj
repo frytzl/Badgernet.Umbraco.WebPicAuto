@@ -14,16 +14,17 @@
     <PackageId>Badgernet.Umbraco.WebPicAuto</PackageId>
     <Product>Badgernet.Umbraco.WebPicAuto</Product>
     <Title>WebPicAuto</Title>
-	<Version>1.1.2</Version>
-    <Description>...</Description>
+	<Version>1.1.3</Version>
+    <Description>Image resizer and converter for Umbraco</Description>
     <PackageTags>umbraco plugin package;umbraco-marketplace;webp; </PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageIcon>wpa_logo.png</PackageIcon>
     <PackageProjectUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</PackageProjectUrl>
     <RepositoryUrl>https://github.com/frytzl/Badgernet.Umbraco.WebPicAuto</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <BaseOutputPath>D:\Nuget Local Folder</BaseOutputPath>
   </PropertyGroup>
   
   <ItemGroup>
@@ -33,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Always" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
@@ -42,10 +42,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Backoffice\" />
-	<Folder Include="App_Plugins\Badgernet.Umbraco.WebPicAuto\Lang\" />
+    <None Update="LICENCE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 </Project>
