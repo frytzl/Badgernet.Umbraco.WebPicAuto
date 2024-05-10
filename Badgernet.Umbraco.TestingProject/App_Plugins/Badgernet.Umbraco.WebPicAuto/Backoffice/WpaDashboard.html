@@ -15,7 +15,6 @@
                     <uui-table-head-cell>Image processing during upload</uui-table-head-cell>
                     <uui-table-head-cell>
                         <uui-button label="Save changes" style="float: right;" class="wpaSaveButton" look="primary" color="positive" ng-click="saveSettings()">Save changes</uui-button>
-                        <uui-button label ="test buttton" style="float: right;" class="wpaSaveButton" look="primary" color="positive" ng-click="testFunc()">Test</uui-button>
                     </uui-table-head-cell>
                 </uui-table-head>
 
@@ -200,59 +199,72 @@
                         </div>
 
                         <div ng-if="vm.mediaCheckResults != undefined" style="margin-top: 0.5rem;">
-                            <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toResizeCount}} images can be downsized.</uui-label>
-                            <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toConvertCount}} images can be converted to .webp format.</uui-label>
-                            <uui-label class="wpaCenteredLabel wpaMutedText">Results are shown based on your current settings.</uui-label>
 
-
-                            <a id="wpaSelectUnselectImages" class="wpaCenteredLabel" style="margin-top: 1.5rem" href="" ng-click="selectAllImages()">Select all</a>
-
-                            <div class="wpaImgContainer">
-
-                                <div ng-repeat="img in vm.mediaCheckResults.optimizeCandidates"
-                                     class="wpaSelectableImg"
-                                     width="40"
-                                     height="40"
-                                     style="background: url('{{img.path}}?width=40&height=40')"
-                                     id="{{img.id}}"
-                                     onclick="angular.element(this).scope().selectImage(this)">
-
-                                    <div class="wpaSelectableImgOverlay"></div>
-
-                                </div>
+                            <div ng-if="vm.mediaCheckResults.optimizeCandidates.length == 0">
+                                <uui-label class="wpaCenteredLabel">Nice, there is nothing more to do.</uui-label>
+                                <uui-label class="wpaCenteredLabel" style="font-size:4em; margin:2rem;">🎉</uui-label>
                             </div>
 
-                            <div style="display: flex; justify-content:center">
+                            <div ng-if="vm.mediaCheckResults.optimizeCandidates.length > 0">
 
-                                <div style="display:flex; flex-direction:column; justify-content:center">
-                                    <uui-checkbox id="wpaConvertExistting" label="Convert" label-position="left" checked ng-on-change="toggleConvertExisting()"></uui-checkbox>
-                                    <uui-checkbox id="wpaResizeExisting" label="Resize" label-position="left" checked ng-on-change="toggleResizeExisting()"></uui-checkbox>
+                                <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toResizeCount}} images can be downsized.</uui-label>
+                                <uui-label class="wpaCenteredLabel">{{vm.mediaCheckResults.toConvertCount}} images can be converted to .webp format.</uui-label>
+                                <uui-label class="wpaCenteredLabel wpaMutedText">Results are shown based on your current settings.</uui-label>
+
+                                <a id="wpaSelectUnselectImages" class="wpaCenteredLabel" style="margin-top: 1.5rem" href="" ng-click="selectAllImages()">Select all</a>
+
+                                <div class="wpaImgContainer">
+
+                                    <div ng-repeat="img in vm.mediaCheckResults.optimizeCandidates"
+                                         class="wpaSelectableImg"
+                                         width="40"
+                                         height="40"
+                                         style="background: url('{{img.path}}?width=40&height=40')"
+                                         id="{{img.id}}"
+                                         onclick="angular.element(this).scope().selectImage(this)">
+
+                                        <div class="wpaSelectableImgOverlay"></div>
+
+                                    </div>
                                 </div>
 
-                                <uui-button label ="optimize images"
-                                            style="max-width: 8rem;"
-                                            id="wpaProcessExistingBtn"
-                                            class="wpaSaveButton" look="primary" color="positive"
-                                            popovertarget="wpaProcessConfirm">Optimize</uui-button>
+                                <div style="display: flex; justify-content:center">
+
+                                    <div style="display:flex; flex-direction:column; justify-content:center">
+                                        <uui-checkbox id="wpaConvertExistting" label="Convert" label-position="left" checked ng-on-change="toggleConvertExisting()"></uui-checkbox>
+                                        <uui-checkbox id="wpaResizeExisting" label="Resize" label-position="left" checked ng-on-change="toggleResizeExisting()"></uui-checkbox>
+                                    </div>
+
+                                    <uui-button label="optimize images"
+                                                style="max-width: 8rem;"
+                                                id="wpaProcessExistingBtn"
+                                                class="wpaSaveButton" look="primary" color="positive"
+                                                popovertarget="wpaProcessConfirm">Optimize</uui-button>
+
+                                </div>
 
                             </div>
 
-                            <a id="wpaSelectUnselectImages" class="wpaCenteredLabel" style="margin-top: 0.5rem" href="" ng-click="checkMedia()">Check images again</a>
 
-                            <uui-popover-container id="wpaProcessConfirm" margin="1" placement="top">
-                                <div style="background: #1b264fff; color: white; padding: 0.8rem">
-                                    <uui-label class="wpaCenteredLabel">Are you sure?</uui-label>
-                                </div>
-                                <uui-label class="wpaCenteredLabel" style="max-width:15rem; margin:1rem;">This will convert and/or resize all selected images.</uui-label>
 
-                                <div style="display: flex; flex-direction:row-reverse; justify-content:center; margin-bottom: 1rem">
-                                    <uui-button label ="yes" class="wpaStackedButton" look="primary" color="positive" ng-click="processExistingImages()" popovertarget="wpaProcessStatus">Yes</uui-button>
-                                    <uui-button label ="cancel" class="wpaStackedButton" look="primary" color="danger" ng-click="closePopup('wpaProcessConfirm')">Cancel</uui-button>
-                                </div>
-                            </uui-popover-container>
 
-                        </div>
-                    </uui-table-cell>
+
+                                <a id="wpaSelectUnselectImages" class="wpaCenteredLabel" style="margin-top: 0.5rem" href="" ng-click="checkMedia()">Check images again</a>
+
+                                <uui-popover-container popover="manual" id="wpaProcessConfirm" margin="1" placement="top">
+                                    <div style="background: #1b264fff; color: white; padding: 0.8rem">
+                                        <uui-label class="wpaCenteredLabel">Are you sure?</uui-label>
+                                    </div>
+                                    <uui-label class="wpaCenteredLabel" style="max-width:15rem; margin:1rem;">This will convert and/or resize all selected images.</uui-label>
+
+                                    <div style="display: flex; flex-direction:row-reverse; justify-content:center; margin-bottom: 1rem">
+                                        <uui-button label="yes" class="wpaStackedButton" look="primary" color="positive" ng-click="processExistingImages()" popovertarget="wpaProcessStatus">Yes</uui-button>
+                                        <uui-button label="cancel" class="wpaStackedButton" look="primary" color="danger" ng-click="closePopup('wpaProcessConfirm')">Cancel</uui-button>
+                                    </div>
+                                </uui-popover-container>
+
+                            </div>
+</uui-table-cell>
                 </uui-table-row>
             </uui-table>
         </div>
